@@ -12,7 +12,6 @@
       <!-- 社团管理/智能匹配 (核心功能) -->
       <div class="nav-section">
         <h3 class="section-title">核心功能</h3>
-        <SidebarLink icon="Trello" label="社团详情/管理" to="/main/club/demo" />
         <SidebarLink icon="Shuffle" label="智能匹配" to="/main/match" />
         <SidebarLink icon="Bot" label="KIMI智能体" to="/main/llm-chat" />
       </div>
@@ -38,6 +37,7 @@ export default defineComponent({
     SidebarLink
   },
   setup() {
+    // TODO: 在这里引入 usePermission composable 来控制管理员模块的显示/隐藏
     return {}
   },
 })
