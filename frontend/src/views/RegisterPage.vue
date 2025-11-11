@@ -1,14 +1,20 @@
 <template>
-  <div class="register-page">
-    <h1>Register</h1>
-    <form class="register-form">
-      <input v-model="username" type="text" placeholder="Username" />
-      <input v-model="email" type="email" placeholder="Email" />
-      <input v-model="password" type="password" placeholder="Password" />
-      <button @click.prevent="handleRegister">Register</button>
-    </form>
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-    <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+  <div class="register-page-container">
+    <div class="register-card">
+      <h1>Register</h1>
+      <RegisterForm
+        v-model:username="username"
+        v-model:email="email"
+        v-model:password="password"
+      />
+
+      <div v-if="errorMessage" class="message error-message">{{ errorMessage }}</div>
+      <div v-if="successMessage" class="message success-message">{{ successMessage }}</div>
+
+      <RegisterButton @register-clicked="handleRegister" />
+
+      <LoginLink />
+    </div>
   </div>
 </template>
 
@@ -17,8 +23,14 @@ import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { register } from '@/api/modules/user'
 
+// 引入拆分的组件
+import RegisterForm from '@/components/register_page_components/RegisterForm.vue'
+import RegisterButton from '@/components/register_page_components/RegisterButton.vue'
+import LoginLink from '@/components/register_page_components/LoginLink.vue'
+
 export default defineComponent({
   name: 'RegisterPage',
+  components: { RegisterForm, RegisterButton, LoginLink },
   setup() {
     const username = ref('')
     const email = ref('')
@@ -27,20 +39,27 @@ export default defineComponent({
     const successMessage = ref('')
     const router = useRouter()
 
+    // 保持 handleRegister 逻辑不变
     const handleRegister = async () => {
       errorMessage.value = ''
       successMessage.value = ''
 
+      // 检查输入是否为空 (新增校验逻辑，但不修改原逻辑流程)
+      if (!username.value || !email.value || !password.value) {
+        errorMessage.value = '请填写所有必填字段'
+        return
+      }
+
       try {
         const res = await register(username.value, password.value)
         if (res.success) {
-          successMessage.value = '注册成功，请登录'
-          setTimeout(() => router.push('/login'), 1000)
+          successMessage.value = '注册成功，正在跳转到登录页面...'
+          setTimeout(() => router.push('/login'), 1500)
         } else {
           errorMessage.value = res.message || '注册失败'
         }
       } catch (err) {
-        errorMessage.value = '请求失败，请重试'
+        errorMessage.value = '网络请求失败，请重试'
         console.error(err)
       }
     }
@@ -58,38 +77,69 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.register-page {
+/* 继承 LoginPage 的整体样式 */
+.register-page-container {
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  margin-top: 50px;
+  /* 蓝色渐变背景 */
+  background: linear-gradient(135deg, #4b7bec 0%, #0099ff 100%);
 }
-.register-form {
+
+.register-card {
+  position: relative;
+  background-color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 25px;
+  width: 100%;
+  max-width: 380px;
+  animation: fadeIn 0.8s ease-out;
 }
-input,
-button {
+
+h1 {
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 5px;
+  text-align: center;
+  font-weight: 300;
+}
+
+/* 消息样式 */
+.message {
+  font-size: 14px;
+  text-align: center;
+  margin-top: -15px;
   padding: 8px;
-  font-size: 16px;
+  border-radius: 4px;
 }
-button {
-  cursor: pointer;
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 5px;
-}
-button:hover {
-  background-color: #1976d2;
-}
+
 .error-message {
-  color: red;
-  margin-top: 10px;
+  color: #e74c3c;
+  background-color: #fceae9;
+  border: 1px solid #e74c3c;
+  animation: shake 0.5s;
 }
+
 .success-message {
-  color: green;
-  margin-top: 10px;
+  color: #27ae60;
+  background-color: #e9f5e9;
+  border: 1px solid #27ae60;
+}
+
+/* 动画定义 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
 }
 </style>

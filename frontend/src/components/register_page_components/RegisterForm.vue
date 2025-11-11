@@ -1,6 +1,7 @@
 <template>
-  <div class="login-form">
+  <div class="register-form">
     <input v-model="username" type="text" placeholder="Username" />
+    <input v-model="email" type="email" placeholder="Email" />
     <input v-model="password" type="password" placeholder="Password" />
   </div>
 </template>
@@ -9,18 +10,20 @@
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
-  name: 'LoginForm',
+  name: 'RegisterForm',
   props: {},
   setup() {
     const username = ref('')
+    const email = ref('')
     const password = ref('')
-    return { username, password }
+
+    return { username, email, password }
   },
 })
 </script>
 
 <style scoped>
-.login-form {
+.register-form {
   display: flex;
   flex-direction: column;
   gap: 20px; /* 增加间距 */

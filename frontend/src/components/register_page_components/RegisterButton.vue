@@ -1,12 +1,13 @@
 <template>
-  <button @click="$emit('login-clicked')">Login</button>
+  <button @click="$emit('register-clicked')">Register</button>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'LoginButton',
+  name: 'RegisterButton',
+  emits: ['register-clicked'],
 })
 </script>
 

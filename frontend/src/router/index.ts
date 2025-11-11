@@ -5,7 +5,7 @@ import MainLayout from '@/views/MainLayout.vue'
 //定义路由,即每个路由对应的页面文件
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
+    path: '/login',
     name: 'Login',
     component: LoginPage,
   },

@@ -1,14 +1,15 @@
 <template>
-  <div class="login-page">
-    <!-- 员工通道,到时候删除 -->
-    <div class="employee-link">
-      <router-link to="/main">详情</router-link>
+  <div class="login-page-container">
+    <div class="login-card">
+      <div class="employee-link">
+        <router-link to="/main">详情</router-link>
+      </div>
+      <h1>Login</h1>
+      <LoginForm v-model:username="username" v-model:password="password" />
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <LoginButton @login-clicked="handleLogin" />
+      <RegisterLink />
     </div>
-    <!--------------------------->
-    <h1>Login</h1>
-    <LoginForm />
-    <LoginButton @login-clicked="handleLogin" />
-    <RegisterLink />
   </div>
 </template>
 
@@ -54,11 +55,75 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.login-page {
+/* 整个页面的容器，应用渐变背景 */
+.login-page-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* 蓝色渐变背景 */
+  background: linear-gradient(135deg, #4b7bec 0%, #0099ff 100%);
+}
+
+/* 登录卡片样式 */
+.login-card {
+  position: relative;
+  background-color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-top: 50px;
-  gap: 20px;
+  gap: 25px; /* 增加组件间距 */
+  width: 100%;
+  max-width: 380px;
+  animation: fadeIn 0.8s ease-out; /* 简单进入动画 */
+}
+
+h1 {
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 5px;
+  text-align: center;
+  font-weight: 300;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  text-align: center;
+  margin-top: -15px;
+  animation: shake 0.5s; /* 错误提示的抖动动画 */
+}
+
+/* 员工通道链接的样式调整 */
+.employee-link {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 12px;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+
+.employee-link:hover {
+  opacity: 1;
+}
+
+.employee-link a {
+  color: #333;
+  text-decoration: none;
+}
+
+/* 动画定义 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
-  <div class="register-link">
-    <router-link to="/register">Don't have an account? Register</router-link>
+  <div class="login-link">
+    <router-link to="/login">Already have an account? Login</router-link>
   </div>
 </template>
 
@@ -8,27 +8,30 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'RegisterLink',
+  name: 'LoginLink',
 })
 </script>
 
 <style scoped>
-.register-link {
-  /* 调整位置，在新的卡片布局中居中 */
-  position: static;
+.login-link {
+  /* 调整位置，在卡片布局中居中 */
   text-align: center;
   margin-top: 10px;
   font-size: 14px;
 }
 
-.register-link a {
+.login-link a {
   color: #007bff; /* 蓝色链接 */
   text-decoration: none;
   transition: color 0.3s ease, text-decoration 0.3s ease;
 }
 
-.register-link a:hover {
+.login-link a:hover {
   color: #0056b3;
   text-decoration: underline; /* 悬停时出现下划线 */
+}
+
+.login-link a strong {
+  font-weight: 500;
 }
 </style>
