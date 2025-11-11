@@ -15,7 +15,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { register } from '@/api/types/user'
+import { register } from '@/api/modules/user'
 
 export default defineComponent({
   name: 'RegisterPage',
