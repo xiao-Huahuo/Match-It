@@ -1,0 +1,516 @@
+openapi: 3.0.3
+info:
+  title: Match It! 社团智能联动匹配系统 API 协议
+  description: 前后端通信接口规范，基于项目功能需求（用户、社团、活动、消息、数据、财务、系统）。
+  version: 1.0.0
+servers:
+  - url: /api
+    description: 前端请求的基础路径，由Vite代理重写至后端服务。
+tags:
+  - name: Auth
+    description: 登录、注册、权限管理
+  - name: UserProfile
+    description: 个人信息管理
+  - name: Club
+    description: 社团广场、详情与基础管理
+  - name: ClubAdmin
+    description: 社团管理员专属接口 (成员、角色、解散等)
+  - name: Activity
+    description: 活动中心、报名与签到
+  - name: Message
+    description: 消息与通知中心
+  - name: Finance
+    description: 财务报销流程
+  - name: Analytics
+    description: 数据分析与可视化
+  - name: System
+    description: 系统维护与LLM智能体
+paths:
+
+  # --- Auth Module (登录/注册/权限) ---
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: 用户登录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: 用户注册
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: 注册成功
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: 用户登出
+      responses:
+        '204':
+          description: 登出成功
+  /user/permissions:
+    get:
+      tags:
+        - Auth
+      summary: 获取当前用户权限列表
+      responses:
+        '200':
+          description: 成功获取权限列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: ["ROLE_MEMBER", "PERMISSION_CLUB_CREATE"]
+
+  # --- User Profile Module (个人信息) ---
+  /user/profile:
+    get:
+      tags:
+        - UserProfile
+      summary: 获取当前用户个人信息
+    put:
+      tags:
+        - UserProfile
+      summary: 更新用户个人信息 (简介/兴趣标签)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+  /user/profile/avatar:
+    post:
+      tags:
+        - UserProfile
+      summary: 上传/更新用户头像
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 上传成功
+
+  # --- Club Module (社团) ---
+  /clubs:
+    get:
+      tags:
+        - Club
+      summary: 获取社团列表/广场 (支持分页/搜索/推荐)
+      parameters:
+        - name: keyword
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: recommend
+          in: query
+          schema: { type: boolean, default: false, description: 是否基于兴趣标签推荐 }
+    post:
+      tags:
+        - Club
+        - ClubAdmin
+      summary: 创建新社团 (需要特定权限)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClubCreateRequest'
+  /clubs/{clubId}:
+    get:
+      tags:
+        - Club
+      summary: 获取社团详情
+    put:
+      tags:
+        - ClubAdmin
+      summary: 编辑社团信息 (社团管理员)
+    delete:
+      tags:
+        - ClubAdmin
+      summary: 解散社团 (需高权限)
+  /clubs/{clubId}/join:
+    post:
+      tags:
+        - Club
+      summary: 申请加入社团
+  /clubs/{clubId}/match:
+    get:
+      tags:
+        - Club
+      summary: 获取用户与社团的匹配分数
+      description: 计算用户兴趣标签与社团标签的匹配度
+
+  # --- Club Admin Module (社团管理) ---
+  /clubs/{clubId}/members:
+    get:
+      tags:
+        - ClubAdmin
+      summary: 获取社团成员列表
+    post:
+      tags:
+        - ClubAdmin
+      summary: 批量导入/添加成员
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                members:
+                  type: array
+                  items: { $ref: '#/components/schemas/MemberData' }
+  /clubs/{clubId}/members/batch:
+    delete:
+      tags:
+        - ClubAdmin
+      summary: 批量删除成员
+  /clubs/applications:
+    get:
+      tags:
+        - ClubAdmin
+      summary: 获取社团入社申请列表 (社团管理员)
+  /clubs/applications/{appId}/review:
+    put:
+      tags:
+        - ClubAdmin
+      summary: 审核入社申请
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [APPROVED, REJECTED]
+
+  # --- Activity Module (活动) ---
+  /activities:
+    get:
+      tags:
+        - Activity
+      summary: 获取活动中心活动列表 (支持筛选/分页)
+    post:
+      tags:
+        - Activity
+        - ClubAdmin
+      summary: 发布新活动
+  /activities/{activityId}:
+    get:
+      tags:
+        - Activity
+      summary: 获取活动详情
+  /activities/{activityId}/enroll:
+    post:
+      tags:
+        - Activity
+      summary: 报名活动
+  /activities/{activityId}/signin:
+    post:
+      tags:
+        - Activity
+      summary: 活动签到
+  /activities/{activityId}/feedback:
+    post:
+      tags:
+        - Activity
+      summary: 提交活动反馈
+  /activities/{activityId}/vote:
+    post:
+      tags:
+        - Activity
+      summary: 提交活动投票
+
+  # --- Message Module (消息) ---
+  /messages:
+    post:
+      tags:
+        - Message
+        - ClubAdmin
+      summary: 发送消息给用户或社团成员
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageSendRequest'
+  /messages/inbox:
+    get:
+      tags:
+        - Message
+      summary: 获取收件箱列表
+  /messages/notifications:
+    get:
+      tags:
+        - Message
+      summary: 获取站内通知列表
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [NORMAL, IMPORTANT, URGENT]
+  /messages/mailbox/emails:
+    get:
+      tags:
+        - Message
+      summary: 获取个人邮箱邮件列表
+
+  # --- Finance Module (财务报销) ---
+  /finance/expenses:
+    get:
+      tags:
+        - Finance
+      summary: 获取报销申请列表 (用户自己或管理员视图)
+    post:
+      tags:
+        - Finance
+      summary: 提交报销申请
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+  /finance/expenses/{expenseId}/approval:
+    put:
+      tags:
+        - Finance
+      summary: 审批报销申请 (管理员)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [APPROVED, REJECTED]
+                remark:
+                  type: string
+
+  # --- Analytics Module (数据分析) ---
+  /analytics/club/active:
+    get:
+      tags:
+        - Analytics
+      summary: 社团活跃度统计
+  /analytics/activity/participation:
+    get:
+      tags:
+        - Analytics
+      summary: 活动参与度统计
+  /analytics/material/ledger:
+    get:
+      tags:
+        - Analytics
+      summary: 物资借用台账
+  /analytics/member/attendance:
+    get:
+      tags:
+        - Analytics
+      summary: 成员考勤记录表
+
+  # --- System Module (系统管理) ---
+  /system/llm/query:
+    post:
+      tags:
+        - System
+      summary: LLM智能体(KIMI)问答
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: 用户输入的问题
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer:
+                    type: string
+                    description: LLM的回答
+  /system/llm/logs:
+    get:
+      tags:
+        - System
+      summary: LLM问答日志 (管理员可见)
+  /system/db/backup:
+    post:
+      tags:
+        - System
+      summary: 数据库定时备份触发 (管理员)
+  /system/db/restore:
+    post:
+      tags:
+        - System
+      summary: 数据库一键恢复 (管理员)
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 401
+        message:
+          type: string
+          example: "未授权或Token无效"
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "testuser"
+        password:
+          type: string
+          example: "securepassword123"
+
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+        - email
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+          format: email
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT/Session Token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        userId:
+          type: integer
+        username:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        bio:
+          type: string
+          nullable: true
+        interestTags:
+          type: array
+          items:
+            type: string
+
+    ClubCreateRequest:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          example: "编程爱好者协会"
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    MemberData:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: integer
+        role:
+          type: string
+          description: 成员角色/席位
+
+    MessageSendRequest:
+      type: object
+      required:
+        - title
+        - content
+        - recipients
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        recipients:
+          type: array
+          items:
+            type: integer
+            description: 接收消息的用户ID列表
+        isSystemNotice:
+          type: boolean
+          description: 是否作为系统公告发送
+
+    ExpenseRequest:
+      type: object
+      required:
+        - amount
+        - reason
+        - clubId
+      properties:
+        amount:
+          type: number
+          format: float
+        reason:
+          type: string
+        clubId:
+          type: integer
+        attachments:
+          type: array
+          items:
+            type: string
+            description: 附件URL列表

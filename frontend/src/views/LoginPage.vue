@@ -18,7 +18,7 @@ import { useRouter } from 'vue-router'
 import LoginForm from '@/components/login_page_components/LoginForm.vue'
 import LoginButton from '@/components/login_page_components/LoginButton.vue'
 import RegisterLink from '@/components/login_page_components/RegisterLink.vue'
-import { login } from '@/api/user'
+import { login } from '@/api/types/user'
 
 export default defineComponent({
   name: 'LoginPage',

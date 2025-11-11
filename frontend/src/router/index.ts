@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import LoginPage from '@/views/LoginPage.vue'
 import RegisterPage from '@/views/RegisterPage.vue'
-import MainPage from '@/views/MainPage.vue'
+import MainLayout from '@/views/MainLayout.vue'
 //定义路由,即每个路由对应的页面文件
 const routes: RouteRecordRaw[] = [
   {
@@ -17,7 +17,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/main',
     name: 'MainPage',
-    component: MainPage,
+    component: MainLayout,
   },
 ]
 

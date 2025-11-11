@@ -1,5 +1,5 @@
 import client from './ApiClient.js'
-import routes from './routes'
+import routes from './routes.js'
 
 // 登录接口
 export async function login(username, password) {
