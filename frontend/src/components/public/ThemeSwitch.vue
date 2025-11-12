@@ -2,7 +2,7 @@
   <button @click="toggleTheme" class="icon-button theme-switch-button" aria-label="Toggle theme">
     <transition name="fade" mode="out-in">
       <!-- Sun icon for light mode -->
-      <svg v-if="currentTheme === 'light'" key="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg v-if="themeStore.theme === 'light'" key="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="5"></circle>
         <line x1="12" y1="1" x2="12" y2="3"></line>
         <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -22,23 +22,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
+import { useThemeStore } from '@/stores/modules/theme'; // <-- Import the theme store
 
 export default defineComponent({
   name: 'ThemeSwitch',
   setup() {
-    // Use a local ref to manage the theme state for now.
-    // This makes the component self-contained.
-    const currentTheme = ref('light'); // 'light' or 'dark'
+    // Get the theme store instance
+    const themeStore = useThemeStore();
 
+    // The toggle function now calls the store's action
     const toggleTheme = () => {
-      currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light';
-      // In the future, this is where we will call the Pinia store action.
-      console.log(`Theme changed to: ${currentTheme.value}`);
+      themeStore.toggleTheme();
     };
 
     return {
-      currentTheme,
+      themeStore, // <-- Expose the store to the template
       toggleTheme,
     };
   },
