@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Match It! 社团智能联动匹配系统 API 协议
   description: 前后端通信接口规范，基于项目功能需求（用户、社团、活动、消息、数据、财务、系统）。
-  version: 1.0.0
+  version: 1.1.0
 servers:
   - url: /api
     description: 前端请求的基础路径，由Vite代理重写至后端服务。
@@ -113,7 +113,7 @@ paths:
                 type: array
                 items:
                   type: string
-                  example: ["ROLE_MEMBER", "PERMISSION_CLUB_CREATE"]
+                  example: ["MEMBER", "PERMISSION_CLUB_CREATE"]
         '401':
           description: 未授权
           content:
@@ -520,7 +520,7 @@ paths:
                 members:
                   type: array
                   items: { $ref: '#/components/schemas/MemberData' }
-                  description: 待添加成员的用户ID和角色信息
+                  description: 待添加成员的用户ID和席位信息
       responses:
         '200':
           description: 成员添加成功
@@ -585,11 +585,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /clubs/{clubId}/members/{memberId}/role:
+  /clubs/{clubId}/members/{memberId}/seat:
     put:
       tags:
         - ClubAdmin
-      summary: 更新社团成员角色
+      summary: 更新社团成员席位
       parameters:
         - name: clubId
           in: path
@@ -606,21 +606,21 @@ paths:
             schema:
               type: object
               properties:
-                role:
+                seat:
                   type: string
-                  description: 新的角色名称
-                  example: "ROLE_VICE_PRESIDENT"
+                  description: 新的席位 (角色键)
+                  example: "VICE_PRESIDENT"
       responses:
         '200':
-          description: 成员角色更新成功
+          description: 成员席位更新成功
         '400':
-          description: 请求参数错误或角色不存在
+          description: 请求参数错误或席位不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: 无权限更新成员角色
+          description: 无权限更新成员席位
           content:
             application/json:
               schema:
@@ -635,7 +635,7 @@ paths:
     get:
       tags:
         - ClubAdmin
-      summary: 获取社团角色列表及其权限
+      summary: 获取社团角色(席位)列表及其权限
       parameters:
         - name: clubId
           in: path
@@ -665,7 +665,7 @@ paths:
     post:
       tags:
         - ClubAdmin
-      summary: 创建社团新角色
+      summary: 创建社团新角色(席位)
       parameters:
         - name: clubId
           in: path
@@ -706,7 +706,7 @@ paths:
     put:
       tags:
         - ClubAdmin
-      summary: 更新社团角色权限
+      summary: 更新社团角色(席位)权限
       parameters:
         - name: clubId
           in: path
@@ -746,7 +746,7 @@ paths:
     delete:
       tags:
         - ClubAdmin
-      summary: 删除社团角色
+      summary: 删除社团角色(席位)
       parameters:
         - name: clubId
           in: path
@@ -2064,7 +2064,8 @@ components:
           type: array
           items:
             type: string
-          example: ["ROLE_USER", "ROLE_MEMBER"]
+          description: "用户的全局角色列表 (USER, MEMBER, ADMIN)"
+          example: ["USER", "MEMBER"]
 
     UserProfile:
       type: object
@@ -2096,7 +2097,8 @@ components:
           type: array
           items:
             type: string
-          example: ["ROLE_USER", "ROLE_MEMBER"]
+          description: "用户的全局角色列表 (USER, MEMBER, ADMIN)"
+          example: ["USER", "MEMBER"]
 
     ProfileUpdateRequest:
       type: object
@@ -2184,18 +2186,6 @@ components:
               type: string
               format: date
               example: "2020-09-01"
-            # announcements: # 公告列表可能通过单独API获取，避免大对象
-            #   type: array
-            #   items:
-            #     $ref: '#/components/schemas/Announcement'
-            # members: # 成员列表可能通过单独API获取，避免大对象
-            #   type: array
-            #   items:
-            #     $ref: '#/components/schemas/ClubMember'
-            # activities: # 活动列表可能通过单独API获取
-            #   type: array
-            #   items:
-            #     $ref: '#/components/schemas/ActivitySummary'
 
     ClubCreateRequest:
       type: object
@@ -2250,15 +2240,15 @@ components:
       type: object
       required:
         - userId
-        - role
+        - seat
       properties:
         userId:
           type: integer
           example: 2
-        role:
+        seat:
           type: string
-          description: 成员角色/席位
-          example: "ROLE_MEMBER"
+          description: "成员席位 (角色键)。例如 'MEMBER', 'PRESIDENT'"
+          example: "MEMBER"
 
     ClubMember:
       type: object
@@ -2273,10 +2263,10 @@ components:
           type: string
           nullable: true
           example: "http://example.com/avatar/2.jpg"
-        role:
+        seat:
           type: string
-          description: 成员在社团中的角色
-          example: "ROLE_VICE_PRESIDENT"
+          description: "成员在社团中的席位 (角色键)。对于非社团成员（普通用户或系统管理员），此字段无意义。"
+          example: "VICE_PRESIDENT"
         joinDate:
           type: string
           format: date-time
@@ -2290,7 +2280,8 @@ components:
           example: 1
         name:
           type: string
-          example: "ROLE_PRESIDENT"
+          description: "角色键/席位键"
+          example: "PRESIDENT"
         description:
           type: string
           example: "社长，拥有最高管理权限"
@@ -2308,7 +2299,8 @@ components:
       properties:
         name:
           type: string
-          example: "ROLE_ACTIVITY_MANAGER"
+          description: "角色键/席位键"
+          example: "ACTIVITY_MANAGER"
         description:
           type: string
           example: "负责活动策划与执行"
@@ -2323,7 +2315,8 @@ components:
       properties:
         name:
           type: string
-          example: "ROLE_ACTIVITY_COORDINATOR"
+          description: "角色键/席位键"
+          example: "ACTIVITY_COORDINATOR"
         description:
           type: string
           example: "活动协调员，协助活动经理"
@@ -2479,14 +2472,6 @@ components:
             voteEnabled:
               type: boolean
               example: false
-            # feedback: # 反馈和投票结果可能通过单独API获取
-            #   type: array
-            #   items:
-            #     $ref: '#/components/schemas/ActivityFeedback'
-            # votes:
-            #   type: array
-            #   items:
-            #     $ref: '#/components/schemas/ActivityVote'
 
     ActivityCreateRequest:
       type: object
