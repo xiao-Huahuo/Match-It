@@ -19,7 +19,7 @@ import { useRouter } from 'vue-router'
 import LoginForm from '@/components/login_page_components/LoginForm.vue'
 import LoginButton from '@/components/login_page_components/LoginButton.vue'
 import RegisterLink from '@/components/login_page_components/RegisterLink.vue'
-import { login } from '@/api/modules/user'
+import { useUserStore } from '@/stores/modules/user'
 
 export default defineComponent({
   name: 'LoginPage',
@@ -29,18 +29,17 @@ export default defineComponent({
     const password = ref('')
     const errorMessage = ref('')
     const router = useRouter()
+    const userStore = useUserStore()
 
     const handleLogin = async () => {
       errorMessage.value = ''
-      const res = await login(username.value, password.value)
-
-      if (res.success && res.token) {
-        // 登录成功
-        localStorage.setItem('token', res.token)
-        await router.push('/main') // 跳转到主页面
-      } else {
-        // 登录失败
-        errorMessage.value = res.message || '登录失败'
+      try {
+        const loginSuccess = await userStore.loginAction(username.value, password.value)
+        if (loginSuccess) {
+          await router.push('/main') // 跳转到主页面
+        }
+      } catch (error: any) {
+        errorMessage.value = error.message || '登录时发生未知错误'
       }
     }
 

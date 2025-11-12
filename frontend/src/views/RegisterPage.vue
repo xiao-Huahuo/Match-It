@@ -39,27 +39,25 @@ export default defineComponent({
     const successMessage = ref('')
     const router = useRouter()
 
-    // 保持 handleRegister 逻辑不变
     const handleRegister = async () => {
       errorMessage.value = ''
       successMessage.value = ''
 
-      // 检查输入是否为空 (新增校验逻辑，但不修改原逻辑流程)
       if (!username.value || !email.value || !password.value) {
         errorMessage.value = '请填写所有必填字段'
         return
       }
 
       try {
-        const res = await register(username.value, password.value)
+        const res = await register(username.value, password.value, email.value)
         if (res.success) {
           successMessage.value = '注册成功，正在跳转到登录页面...'
           setTimeout(() => router.push('/login'), 1500)
         } else {
           errorMessage.value = res.message || '注册失败'
         }
-      } catch (err) {
-        errorMessage.value = '网络请求失败，请重试'
+      } catch (err: any) {
+        errorMessage.value = err.message || '网络请求失败，请重试'
         console.error(err)
       }
     }

@@ -1,19 +1,57 @@
 declare module '@/api/modules/user' {
-
-  // Login 接口返回类型
-  export interface LoginResult {
-    success: boolean // 是否成功
-    token?: string // 登录成功返回的 token
-    message?: string // 登录失败提示信息
+  /**
+   * 登录成功后的响应体
+   * Corresponds to AuthResponse in api.yaml
+   */
+  export interface AuthResponse {
+    token: string;
+    userId: number;
+    username: string;
+    roles: ('USER' | 'MEMBER' | 'ADMIN')[];
   }
 
-  // Register 接口返回类型
-  export interface RegisterResult {
-    success: boolean // 是否成功
-    message?: string // 注册提示信息
+  /**
+   * API 响应的通用成功结构
+   */
+  export interface ApiSuccessResponse<T> {
+    success: true;
+    data: T;
   }
 
-  // user.js 中的函数声明
-  export function login(username: string, password: string): Promise<LoginResult>
-  export function register(username: string, password: string): Promise<RegisterResult>
+  /**
+   * API 响应的通用失败结构
+   */
+  export interface ApiErrorResponse {
+    success: false;
+    message: string;
+  }
+
+  /**
+   * login 函数的API响应类型
+   */
+  export type LoginApiResponse = ApiSuccessResponse<AuthResponse> | ApiErrorResponse;
+
+  /**
+   * register 函数的API响应类型
+   */
+  export type RegisterApiResponse = | { success: true; message: string } | ApiErrorResponse;
+
+  /**
+   * 用户登录
+   * @param username 用户名
+   * @param password 密码
+   */
+  export function login(username: string, password: string): Promise<LoginApiResponse>;
+
+  /**
+   * 用户注册
+   * @param username 用户名
+   * @param password 密码
+   * @param email 邮箱
+   */
+  export function register(
+    username: string,
+    password: string,
+    email: string
+  ): Promise<RegisterApiResponse>;
 }
