@@ -7,15 +7,17 @@
     <div v-if="loading" class="loading-state">
       <div v-for="n in 4" :key="n" class="skeleton-item"></div>
     </div>
-    <ul v-else-if="announcements.length > 0" class="announcement-list">
-      <li v-for="announcement in announcements" :key="announcement.id" class="announcement-item" @click="readAnnouncement(announcement)">
-        <span :class="['level-indicator', `level-${announcement.level.toLowerCase()}`]">
-          {{ getLevelText(announcement.level) }}
-        </span>
-        <p class="item-title">{{ announcement.title }}</p>
-        <span class="item-date">{{ formatDate(announcement.createDate) }}</span>
-      </li>
-    </ul>
+    <div v-else-if="announcements.length > 0" class="list-wrapper">
+      <ul class="announcement-list">
+        <li v-for="announcement in announcements" :key="announcement.id" class="announcement-item" @click="readAnnouncement(announcement)">
+          <span :class="['level-indicator', `level-${announcement.level.toLowerCase()}`]">
+            {{ getLevelText(announcement.level) }}
+          </span>
+          <p class="item-title">{{ announcement.title }}</p>
+          <span class="item-date">{{ formatDate(announcement.createDate) }}</span>
+        </li>
+      </ul>
+    </div>
     <div v-else class="empty-state">
       <p>当前暂无公告</p>
     </div>
@@ -31,7 +33,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faBullhorn } from '@fortawesome/free-solid-svg-icons'
 
-// 将图标添加到库中
 library.add(faBullhorn)
 
 const announcements = ref<Notification[]>([])
@@ -41,8 +42,8 @@ const router = useRouter()
 const fetchAnnouncements = async () => {
   try {
     loading.value = true
-    // 获取最新的5条公告
-    const response = await getNotifications({ page: 1, size: 5 })
+    // 获取最新的15条公告以测试滚动效果
+    const response = await getNotifications({ page: 1, size: 15 })
     announcements.value = response.records
   } catch (error) {
     console.error('Failed to fetch announcements:', error)
@@ -66,7 +67,6 @@ const formatDate = (dateString: string) => {
 }
 
 const readAnnouncement = (announcement: Notification) => {
-  // 如果公告有关联URL，则跳转；否则可以弹窗显示详情
   if (announcement.relatedUrl) {
     router.push(announcement.relatedUrl)
   } else {
@@ -85,6 +85,9 @@ onMounted(() => {
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  height: 100%; /* 填满父容器 */
+  display: flex;
+  flex-direction: column;
 }
 
 .section-title {
@@ -94,11 +97,19 @@ onMounted(() => {
   margin: 0 0 15px 0;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .title-icon {
   margin-right: 8px;
   color: #e74c3c;
+}
+
+.list-wrapper {
+  flex-grow: 1; /* 占据所有剩余空间 */
+  overflow-y: auto; /* 核心：当内容超出时，出现垂直滚动条 */
+  padding-right: 5px;
+  margin-right: -5px;
 }
 
 .announcement-list {
@@ -157,6 +168,7 @@ onMounted(() => {
 
 .loading-state, .empty-state {
   padding: 20px 0;
+  margin: auto;
 }
 
 .skeleton-item {
@@ -166,12 +178,6 @@ onMounted(() => {
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
   margin-bottom: 10px;
-}
-
-.empty-state p {
-  text-align: center;
-  color: #888;
-  font-size: 14px;
 }
 
 @keyframes skeleton-loading {

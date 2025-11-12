@@ -49,7 +49,7 @@
    ├── src/
    │   ├── api/                         # API接口层
    │   │   ├── modules/                 # 按模块划分API
-   │   │   │   ├── routes.js            # 存储全局前后端通信API
+   │   │   │   ├── routes.js            # 存储全局前后端通信API,其他的通信路由都应该用这里个文件的常量
    │   │   │   ├── ApiClient.js         # 对所有的API路由进行过滤的client
    │   │   │   ├── user.js              # 用户相关API
    │   │   │   ├── club.js              # 社团相关API

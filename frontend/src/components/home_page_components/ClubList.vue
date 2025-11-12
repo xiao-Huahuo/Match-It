@@ -2,20 +2,22 @@
   <div class="club-list-container">
     <h2 class="list-title">社团广场</h2>
     <div v-if="loading" class="loading-grid">
-      <div v-for="n in 6" :key="n" class="skeleton-card"></div>
+      <div v-for="n in 9" :key="n" class="skeleton-card"></div>
     </div>
-    <div v-else-if="clubs.length > 0" class="club-grid">
-      <ClubCard v-for="club in clubs" :key="club.id" :club="club" />
+    <div v-else-if="clubs.length > 0" class="club-grid-wrapper">
+      <div class="club-grid">
+        <ClubCard v-for="club in clubs" :key="club.id" :club="club" />
+      </div>
+      <div class="pagination-wrapper" v-if="total > pageSize">
+        <Pagination
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          @page-changed="handlePageChange"
+        />
+      </div>
     </div>
     <div v-else class="empty-state">
       <p>暂无社团信息</p>
-    </div>
-    <div class="pagination-wrapper" v-if="!loading && total > pageSize">
-      <Pagination
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @page-changed="handlePageChange"
-      />
     </div>
   </div>
 </template>
@@ -30,7 +32,7 @@ import Pagination from '@/components/public/Pagination.vue'
 const clubs = ref<ClubSummary[]>([])
 const loading = ref(true)
 const currentPage = ref(1)
-const pageSize = ref(9) // 每页9个，方便3x3网格布局
+const pageSize = ref(9)
 const total = ref(0)
 
 const totalPages = computed(() => Math.ceil(total.value / pageSize.value))
@@ -44,7 +46,6 @@ const fetchClubs = async (page = 1) => {
     currentPage.value = page
   } catch (error) {
     console.error('Failed to fetch clubs:', error)
-    // 可以在这里设置一个错误状态
   } finally {
     loading.value = false
   }
@@ -65,6 +66,9 @@ onMounted(() => {
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  height: 100%; /* 填满父容器 */
+  display: flex;
+  flex-direction: column;
 }
 
 .list-title {
@@ -72,12 +76,27 @@ onMounted(() => {
   font-weight: 600;
   color: #333;
   margin-bottom: 20px;
+  flex-shrink: 0; /* 防止标题被压缩 */
+}
+
+.club-grid-wrapper {
+  flex-grow: 1; /* 占据所有剩余空间 */
+  overflow-y: auto; /* 核心：当内容超出时，出现垂直滚动条 */
+  padding-right: 10px; /* 为滚动条留出空间，防止内容遮挡 */
+  margin-right: -10px; /* 将滚动条挤到padding区域，视觉上更好看 */
 }
 
 .club-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+  padding-bottom: 10px;
 }
 
 .loading-grid {
@@ -87,7 +106,7 @@ onMounted(() => {
 }
 
 .skeleton-card {
-  height: 220px; /* 与ClubCard大致高度匹配 */
+  height: 220px;
   border-radius: 12px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
@@ -95,23 +114,14 @@ onMounted(() => {
 }
 
 @keyframes skeleton-loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .empty-state {
   text-align: center;
   padding: 50px 0;
   color: #888;
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
+  margin: auto; /* 在flex容器中居中 */
 }
 </style>
