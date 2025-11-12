@@ -136,19 +136,25 @@ export default defineComponent({
   height: 20px;
 }
 
-/* 徽章/未读数 */
+/* 徽章/未读数 - Updated styles for perfect circle */
 .badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 8px;
+  right: 8px;
+  transform: translate(50%, -50%);
   background-color: #e74c3c; /* 红色 */
   color: white;
   border-radius: 50%;
-  padding: 2px 5px;
   font-size: 10px;
   line-height: 1;
-  min-width: 15px;
   text-align: center;
+  /* Ensure it's a circle */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 12px;
+  height: 12px;
+  padding: 0; /* Remove padding to control size with width/height */
 }
 
 /* 用户头像 */
