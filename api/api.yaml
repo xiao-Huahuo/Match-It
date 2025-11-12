@@ -14,7 +14,7 @@ tags:
   - name: Club
     description: 社团广场、详情与基础管理
   - name: ClubAdmin
-    description: 社团管理员专属接口 (成员、角色、解散等)
+    description: 社团管理员专属接口 (成员、角色、解散、公告等)
   - name: Activity
     description: 活动中心、报名与签到
   - name: Message
@@ -25,7 +25,26 @@ tags:
     description: 数据分析与可视化
   - name: System
     description: 系统维护与LLM智能体
+  - name: Common
+    description: 公共接口 (如轮播图)
+
 paths:
+
+  # --- Common Module (公共) ---
+  /carousel:
+    get:
+      tags:
+        - Common
+      summary: 获取首页轮播图数据
+      responses:
+        '200':
+          description: 成功获取轮播图列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarouselItem'
 
   # --- Auth Module (登录/注册/权限) ---
   /auth/login:
@@ -46,6 +65,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: 认证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /auth/register:
     post:
       tags:
@@ -60,6 +85,12 @@ paths:
       responses:
         '201':
           description: 注册成功
+        '409':
+          description: 用户名或邮箱已存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /auth/logout:
     post:
       tags:
@@ -83,6 +114,12 @@ paths:
                 items:
                   type: string
                   example: ["ROLE_MEMBER", "PERMISSION_CLUB_CREATE"]
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # --- User Profile Module (个人信息) ---
   /user/profile:
@@ -90,11 +127,25 @@ paths:
       tags:
         - UserProfile
       summary: 获取当前用户个人信息
+      responses:
+        '200':
+          description: 成功获取个人信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags:
         - UserProfile
       summary: 更新用户个人信息 (简介/兴趣标签)
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -102,12 +153,25 @@ paths:
       responses:
         '200':
           description: 更新成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /user/profile/avatar:
     post:
       tags:
         - UserProfile
       summary: 上传/更新用户头像
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:
@@ -116,9 +180,70 @@ paths:
                 file:
                   type: string
                   format: binary
+                  description: 头像图片文件
       responses:
         '200':
           description: 上传成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avatarUrl:
+                    type: string
+                    description: 新头像的URL
+        '400':
+          description: 文件上传失败或格式错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /user/clubs:
+    get:
+      tags:
+        - UserProfile
+      summary: 获取当前用户加入的社团列表
+      responses:
+        '200':
+          description: 成功获取社团列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClubSummary'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /user/activities:
+    get:
+      tags:
+        - UserProfile
+      summary: 获取当前用户报名的活动列表
+      responses:
+        '200':
+          description: 成功获取活动列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivitySummary'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # --- Club Module (社团) ---
   /clubs:
@@ -129,47 +254,209 @@ paths:
       parameters:
         - name: keyword
           in: query
-          schema: { type: string }
+          schema: { type: string, description: 搜索关键词 }
         - name: page
           in: query
-          schema: { type: integer, default: 1 }
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
         - name: recommend
           in: query
           schema: { type: boolean, default: false, description: 是否基于兴趣标签推荐 }
+      responses:
+        '200':
+          description: 成功获取社团列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ClubSummary'
     post:
       tags:
         - Club
         - ClubAdmin
       summary: 创建新社团 (需要特定权限)
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ClubCreateRequest'
+      responses:
+        '201':
+          description: 社团创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClubSummary'
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限创建社团
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /clubs/{clubId}:
     get:
       tags:
         - Club
       summary: 获取社团详情
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      responses:
+        '200':
+          description: 成功获取社团详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClubDetail'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags:
         - ClubAdmin
       summary: 编辑社团信息 (社团管理员)
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClubUpdateRequest'
+      responses:
+        '200':
+          description: 社团信息更新成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限编辑社团信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       tags:
         - ClubAdmin
       summary: 解散社团 (需高权限)
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      responses:
+        '204':
+          description: 社团解散成功
+        '403':
+          description: 无权限解散社团
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /clubs/{clubId}/join:
     post:
       tags:
         - Club
       summary: 申请加入社团
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      responses:
+        '202':
+          description: 申请已提交，等待审核
+        '400':
+          description: 已提交申请或已是社团成员
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /clubs/{clubId}/match:
     get:
       tags:
         - Club
       summary: 获取用户与社团的匹配分数
       description: 计算用户兴趣标签与社团标签的匹配度
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      responses:
+        '200':
+          description: 成功获取匹配分数
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  score:
+                    type: number
+                    format: float
+                    description: 匹配分数 (0-100)
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # --- Club Admin Module (社团管理) ---
   /clubs/{clubId}/members:
@@ -177,11 +464,54 @@ paths:
       tags:
         - ClubAdmin
       summary: 获取社团成员列表
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取成员列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ClubMember'
+        '403':
+          description: 无权限查看成员列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - ClubAdmin
       summary: 批量导入/添加成员
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -190,22 +520,452 @@ paths:
                 members:
                   type: array
                   items: { $ref: '#/components/schemas/MemberData' }
+                  description: 待添加成员的用户ID和角色信息
+      responses:
+        '200':
+          description: 成员添加成功
+        '400':
+          description: 请求参数错误或用户不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限添加成员
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /clubs/{clubId}/members/batch:
     delete:
       tags:
         - ClubAdmin
       summary: 批量删除成员
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  items:
+                    type: integer
+                  description: 待删除成员的用户ID列表
+      responses:
+        '204':
+          description: 成员删除成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限删除成员
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /clubs/{clubId}/members/{memberId}/role:
+    put:
+      tags:
+        - ClubAdmin
+      summary: 更新社团成员角色
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+        - name: memberId
+          in: path
+          required: true
+          schema: { type: integer, description: 成员用户ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  description: 新的角色名称
+                  example: "ROLE_VICE_PRESIDENT"
+      responses:
+        '200':
+          description: 成员角色更新成功
+        '400':
+          description: 请求参数错误或角色不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限更新成员角色
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团或成员不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /clubs/{clubId}/roles:
+    get:
+      tags:
+        - ClubAdmin
+      summary: 获取社团角色列表及其权限
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      responses:
+        '200':
+          description: 成功获取角色列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClubRole'
+        '403':
+          description: 无权限查看角色列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - ClubAdmin
+      summary: 创建社团新角色
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClubRoleCreateRequest'
+      responses:
+        '201':
+          description: 角色创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClubRole'
+        '400':
+          description: 请求参数错误或角色名已存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限创建角色
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /clubs/{clubId}/roles/{roleId}:
+    put:
+      tags:
+        - ClubAdmin
+      summary: 更新社团角色权限
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+        - name: roleId
+          in: path
+          required: true
+          schema: { type: integer, description: 角色ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClubRoleUpdateRequest'
+      responses:
+        '200':
+          description: 角色权限更新成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限更新角色权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团或角色不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - ClubAdmin
+      summary: 删除社团角色
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+        - name: roleId
+          in: path
+          required: true
+          schema: { type: integer, description: 角色ID }
+      responses:
+        '204':
+          description: 角色删除成功
+        '403':
+          description: 无权限删除角色
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团或角色不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /clubs/{clubId}/announcements:
+    get:
+      tags:
+        - Club
+      summary: 获取社团公告列表
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取公告列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Announcement'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - ClubAdmin
+      summary: 发布社团公告
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementCreateRequest'
+      responses:
+        '201':
+          description: 公告发布成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限发布公告
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /clubs/{clubId}/announcements/{announcementId}:
+    put:
+      tags:
+        - ClubAdmin
+      summary: 更新社团公告
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+        - name: announcementId
+          in: path
+          required: true
+          schema: { type: integer, description: 公告ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementUpdateRequest'
+      responses:
+        '200':
+          description: 公告更新成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限更新公告
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团或公告不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - ClubAdmin
+      summary: 删除社团公告
+      parameters:
+        - name: clubId
+          in: path
+          required: true
+          schema: { type: integer, description: 社团ID }
+        - name: announcementId
+          in: path
+          required: true
+          schema: { type: integer, description: 公告ID }
+      responses:
+        '204':
+          description: 公告删除成功
+        '403':
+          description: 无权限删除公告
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 社团或公告不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /clubs/applications:
     get:
       tags:
         - ClubAdmin
       summary: 获取社团入社申请列表 (社团管理员)
+      parameters:
+        - name: clubId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定社团的申请 }
+        - name: status
+          in: query
+          schema: { type: string, enum: [PENDING, APPROVED, REJECTED], description: 筛选申请状态 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取申请列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ClubApplication'
+        '403':
+          description: 无权限查看申请列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /clubs/applications/{appId}/review:
     put:
       tags:
         - ClubAdmin
       summary: 审核入社申请
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          schema: { type: integer, description: 申请ID }
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -214,6 +974,32 @@ paths:
                 status:
                   type: string
                   enum: [APPROVED, REJECTED]
+                  description: 审核结果
+                remark:
+                  type: string
+                  nullable: true
+                  description: 审核备注
+      responses:
+        '200':
+          description: 申请审核成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限审核申请
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 申请不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # --- Activity Module (活动) ---
   /activities:
@@ -221,36 +1007,374 @@ paths:
       tags:
         - Activity
       summary: 获取活动中心活动列表 (支持筛选/分页)
+      parameters:
+        - name: clubId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定社团的活动 }
+        - name: status
+          in: query
+          schema: { type: string, enum: [UPCOMING, ONGOING, PAST, CANCELLED], description: 筛选活动状态 }
+        - name: keyword
+          in: query
+          schema: { type: string, description: 搜索关键词 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取活动列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ActivitySummary'
     post:
       tags:
         - Activity
         - ClubAdmin
       summary: 发布新活动
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityCreateRequest'
+      responses:
+        '201':
+          description: 活动发布成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityDetail'
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限发布活动
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /activities/{activityId}:
     get:
       tags:
         - Activity
       summary: 获取活动详情
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      responses:
+        '200':
+          description: 成功获取活动详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityDetail'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - ClubAdmin
+      summary: 更新活动信息
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityUpdateRequest'
+      responses:
+        '200':
+          description: 活动信息更新成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限更新活动
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - ClubAdmin
+      summary: 删除活动
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      responses:
+        '204':
+          description: 活动删除成功
+        '403':
+          description: 无权限删除活动
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /activities/{activityId}/enroll:
     post:
       tags:
         - Activity
       summary: 报名活动
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      responses:
+        '200':
+          description: 报名成功
+        '400':
+          description: 报名失败 (如活动已结束, 名额已满, 已报名)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /activities/{activityId}/signin:
     post:
       tags:
         - Activity
       summary: 活动签到
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: 签到码 (可选, 如果活动需要)
+      responses:
+        '200':
+          description: 签到成功
+        '400':
+          description: 签到失败 (如不在签到时间, 签到码错误)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /activities/{activityId}/feedback:
     post:
       tags:
         - Activity
       summary: 提交活动反馈
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityFeedbackRequest'
+      responses:
+        '201':
+          description: 反馈提交成功
+        '400':
+          description: 反馈提交失败 (如已提交过)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /activities/{activityId}/feedback/results:
+    get:
+      tags:
+        - ClubAdmin
+      summary: 获取活动反馈结果 (管理员)
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      responses:
+        '200':
+          description: 成功获取反馈结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalFeedbacks:
+                    type: integer
+                  averageRating:
+                    type: number
+                    format: float
+                  feedbackList:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ActivityFeedback'
+        '403':
+          description: 无权限查看反馈结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /activities/{activityId}/vote:
     post:
       tags:
         - Activity
       summary: 提交活动投票
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityVoteRequest'
+      responses:
+        '200':
+          description: 投票成功
+        '400':
+          description: 投票失败 (如已投票, 投票已结束)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /activities/{activityId}/vote/results:
+    get:
+      tags:
+        - ClubAdmin
+      summary: 获取活动投票结果 (管理员)
+      parameters:
+        - name: activityId
+          in: path
+          required: true
+          schema: { type: integer, description: 活动ID }
+      responses:
+        '200':
+          description: 成功获取投票结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalVotes:
+                    type: integer
+                  options:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        optionText:
+                          type: string
+                        voteCount:
+                          type: integer
+        '403':
+          description: 无权限查看投票结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 活动不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # --- Message Module (消息) ---
   /messages:
@@ -260,15 +1384,86 @@ paths:
         - ClubAdmin
       summary: 发送消息给用户或社团成员
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/MessageSendRequest'
+      responses:
+        '201':
+          description: 消息发送成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /messages/inbox:
     get:
       tags:
         - Message
       summary: 获取收件箱列表
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+        - name: readStatus
+          in: query
+          schema: { type: boolean, description: 可选，筛选已读/未读消息 }
+      responses:
+        '200':
+          description: 成功获取收件箱列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /messages/{messageId}/read:
+    put:
+      tags:
+        - Message
+      summary: 标记消息为已读
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema: { type: integer, description: 消息ID }
+      responses:
+        '200':
+          description: 消息标记为已读成功
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 消息不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /messages/notifications:
     get:
       tags:
@@ -280,11 +1475,68 @@ paths:
           schema:
             type: string
             enum: [NORMAL, IMPORTANT, URGENT]
+            description: 筛选通知级别
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+        - name: readStatus
+          in: query
+          schema: { type: boolean, description: 可选，筛选已读/未读通知 }
+      responses:
+        '200':
+          description: 成功获取通知列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /messages/mailbox/emails:
     get:
       tags:
         - Message
-      summary: 获取个人邮箱邮件列表
+      summary: 获取个人邮箱邮件列表 (可能需要集成第三方邮件服务或模拟)
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取邮件列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Email'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # --- Finance Module (财务报销) ---
   /finance/expenses:
@@ -292,21 +1544,80 @@ paths:
       tags:
         - Finance
       summary: 获取报销申请列表 (用户自己或管理员视图)
+      parameters:
+        - name: clubId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定社团的报销 }
+        - name: status
+          in: query
+          schema: { type: string, enum: [PENDING, APPROVED, REJECTED], description: 筛选报销状态 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取报销申请列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Expense'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - Finance
       summary: 提交报销申请
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ExpenseRequest'
+      responses:
+        '201':
+          description: 报销申请提交成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /finance/expenses/{expenseId}/approval:
     put:
       tags:
         - Finance
       summary: 审批报销申请 (管理员)
+      parameters:
+        - name: expenseId
+          in: path
+          required: true
+          schema: { type: integer, description: 报销申请ID }
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -315,8 +1626,32 @@ paths:
                 status:
                   type: string
                   enum: [APPROVED, REJECTED]
+                  description: 审批结果
                 remark:
                   type: string
+                  nullable: true
+                  description: 审批备注
+      responses:
+        '200':
+          description: 报销申请审批成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限审批报销
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 报销申请不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # --- Analytics Module (数据分析) ---
   /analytics/club/active:
@@ -324,21 +1659,162 @@ paths:
       tags:
         - Analytics
       summary: 社团活跃度统计
+      parameters:
+        - name: clubId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定社团的活跃度 }
+        - name: period
+          in: query
+          schema: { type: string, enum: [WEEKLY, MONTHLY, QUARTERLY, YEARLY], default: MONTHLY, description: 统计周期 }
+      responses:
+        '200':
+          description: 成功获取社团活跃度数据
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period:
+                          type: string
+                          example: "2023-10"
+                        activeClubs:
+                          type: integer
+                        totalClubs:
+                          type: integer
+                  chartData:
+                    type: object
+                    description: 适用于ECharts等图表库的数据结构
+        '403':
+          description: 无权限查看数据
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /analytics/activity/participation:
     get:
       tags:
         - Analytics
       summary: 活动参与度统计
+      parameters:
+        - name: activityId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定活动的参与度 }
+        - name: clubId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定社团的活动参与度 }
+        - name: period
+          in: query
+          schema: { type: string, enum: [WEEKLY, MONTHLY, QUARTERLY, YEARLY], default: MONTHLY, description: 统计周期 }
+      responses:
+        '200':
+          description: 成功获取活动参与度数据
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period:
+                          type: string
+                          example: "2023-10"
+                        totalActivities:
+                          type: integer
+                        totalParticipants:
+                          type: integer
+                        averageParticipants:
+                          type: number
+                          format: float
+                  chartData:
+                    type: object
+                    description: 适用于ECharts等图表库的数据结构
+        '403':
+          description: 无权限查看数据
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /analytics/material/ledger:
     get:
       tags:
         - Analytics
       summary: 物资借用台账
+      parameters:
+        - name: clubId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定社团的台账 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取物资借用台账
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MaterialRecord'
+        '403':
+          description: 无权限查看台账
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /analytics/member/attendance:
     get:
       tags:
         - Analytics
       summary: 成员考勤记录表
+      parameters:
+        - name: clubId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定社团的考勤 }
+        - name: activityId
+          in: query
+          schema: { type: integer, description: 可选，筛选特定活动的考勤 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取成员考勤记录
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendanceRecord'
+        '403':
+          description: 无权限查看考勤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # --- System Module (系统管理) ---
   /system/llm/query:
@@ -347,6 +1823,7 @@ paths:
         - System
       summary: LLM智能体(KIMI)问答
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -355,8 +1832,10 @@ paths:
                 prompt:
                   type: string
                   description: 用户输入的问题
+                  example: "社团活动如何报名？"
       responses:
         '200':
+          description: LLM成功返回回答
           content:
             application/json:
               schema:
@@ -365,21 +1844,165 @@ paths:
                   answer:
                     type: string
                     description: LLM的回答
+                    example: "您可以通过活动详情页的报名按钮进行报名。"
+        '400':
+          description: 请求参数错误或LLM服务异常
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /system/llm/logs:
     get:
       tags:
         - System
       summary: LLM问答日志 (管理员可见)
+      parameters:
+        - name: keyword
+          in: query
+          schema: { type: string, description: 搜索关键词 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取LLM问答日志
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LlmLog'
+        '403':
+          description: 无权限查看日志
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /system/llm/wiki-entry:
+    post:
+      tags:
+        - System
+      summary: 从LLM日志创建社团百科词条 (管理员)
+      description: 根据高频LLM问答日志，管理员可以创建或更新社团百科词条。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                  description: 常见问题
+                  example: "如何加入社团？"
+                answer:
+                  type: string
+                  description: 对应的标准回答
+                  example: "用户可以在社团广场浏览社团，并在社团详情页点击“申请加入”按钮提交申请。"
+      responses:
+        '201':
+          description: 百科词条创建成功
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限创建词条
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /system/logs:
+    get:
+      tags:
+        - System
+      summary: 获取系统操作日志 (管理员)
+      parameters:
+        - name: level
+          in: query
+          schema: { type: string, enum: [INFO, WARN, ERROR], description: 筛选日志级别 }
+        - name: keyword
+          in: query
+          schema: { type: string, description: 搜索关键词 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, description: 页码 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 10, description: 每页数量 }
+      responses:
+        '200':
+          description: 成功获取系统操作日志
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SystemLog'
+        '403':
+          description: 无权限查看系统日志
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /system/db/backup:
     post:
       tags:
         - System
       summary: 数据库定时备份触发 (管理员)
+      responses:
+        '200':
+          description: 数据库备份任务已触发
+        '403':
+          description: 无权限触发备份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /system/db/restore:
     post:
       tags:
         - System
       summary: 数据库一键恢复 (管理员)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backupFileName:
+                  type: string
+                  description: 要恢复的备份文件名 (可选，默认最新)
+      responses:
+        '200':
+          description: 数据库恢复任务已触发
+        '400':
+          description: 备份文件不存在或恢复失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无权限触发恢复
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
@@ -415,11 +2038,14 @@ components:
       properties:
         username:
           type: string
+          example: "newuser"
         password:
           type: string
+          example: "newsecurepassword123"
         email:
           type: string
           format: email
+          example: "user@example.com"
 
     AuthResponse:
       type: object
@@ -430,12 +2056,47 @@ components:
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         userId:
           type: integer
+          example: 1
         username:
           type: string
+          example: "testuser"
         roles:
           type: array
           items:
             type: string
+          example: ["ROLE_USER", "ROLE_MEMBER"]
+
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "testuser"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        avatarUrl:
+          type: string
+          nullable: true
+          example: "http://example.com/avatar/1.jpg"
+        bio:
+          type: string
+          nullable: true
+          example: "热爱编程，喜欢运动。"
+        interestTags:
+          type: array
+          items:
+            type: string
+          example: ["编程", "篮球", "阅读"]
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["ROLE_USER", "ROLE_MEMBER"]
 
     ProfileUpdateRequest:
       type: object
@@ -443,10 +2104,98 @@ components:
         bio:
           type: string
           nullable: true
+          example: "热爱编程，喜欢运动，最近在学习Vue3。"
         interestTags:
           type: array
           items:
             type: string
+          example: ["编程", "篮球", "Vue3"]
+
+    CarouselItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        imageUrl:
+          type: string
+          format: url
+          example: "http://example.com/banner1.jpg"
+        targetUrl:
+          type: string
+          format: url
+          example: "http://example.com/sponsor/campaign"
+        title:
+          type: string
+          example: "赞助商活动"
+        description:
+          type: string
+          example: "点击了解更多详情"
+        order:
+          type: integer
+          example: 1
+
+    ClubSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: "编程爱好者协会"
+        description:
+          type: string
+          example: "一个热爱编程，分享技术的社团。"
+        logoUrl:
+          type: string
+          nullable: true
+          example: "http://example.com/club_logo/101.png"
+        memberCount:
+          type: integer
+          example: 50
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["编程", "技术", "开源"]
+        isJoined:
+          type: boolean
+          description: 当前用户是否已加入该社团
+          example: true
+
+    ClubDetail:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ClubSummary'
+        - type: object
+          properties:
+            presidentId:
+              type: integer
+              example: 1
+            presidentName:
+              type: string
+              example: "张三"
+            contactEmail:
+              type: string
+              format: email
+              example: "club@example.com"
+            foundDate:
+              type: string
+              format: date
+              example: "2020-09-01"
+            # announcements: # 公告列表可能通过单独API获取，避免大对象
+            #   type: array
+            #   items:
+            #     $ref: '#/components/schemas/Announcement'
+            # members: # 成员列表可能通过单独API获取，避免大对象
+            #   type: array
+            #   items:
+            #     $ref: '#/components/schemas/ClubMember'
+            # activities: # 活动列表可能通过单独API获取
+            #   type: array
+            #   items:
+            #     $ref: '#/components/schemas/ActivitySummary'
 
     ClubCreateRequest:
       type: object
@@ -459,21 +2208,445 @@ components:
           example: "编程爱好者协会"
         description:
           type: string
+          example: "一个热爱编程，分享技术的社团，欢迎所有对编程感兴趣的同学加入！"
         tags:
           type: array
           items:
             type: string
+          example: ["编程", "技术", "开源"]
+        logoUrl:
+          type: string
+          nullable: true
+          example: "http://example.com/club_logo/default.png"
+        contactEmail:
+          type: string
+          format: email
+          example: "newclub@example.com"
+
+    ClubUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "编程爱好者协会 (更新)"
+        description:
+          type: string
+          example: "更新后的社团简介。"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["编程", "技术", "AI"]
+        logoUrl:
+          type: string
+          nullable: true
+          example: "http://example.com/club_logo/101_new.png"
+        contactEmail:
+          type: string
+          format: email
+          example: "club_updated@example.com"
 
     MemberData:
       type: object
       required:
         - userId
+        - role
       properties:
         userId:
           type: integer
+          example: 2
         role:
           type: string
           description: 成员角色/席位
+          example: "ROLE_MEMBER"
+
+    ClubMember:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 2
+        username:
+          type: string
+          example: "李四"
+        avatarUrl:
+          type: string
+          nullable: true
+          example: "http://example.com/avatar/2.jpg"
+        role:
+          type: string
+          description: 成员在社团中的角色
+          example: "ROLE_VICE_PRESIDENT"
+        joinDate:
+          type: string
+          format: date-time
+          example: "2023-01-15T10:00:00Z"
+
+    ClubRole:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "ROLE_PRESIDENT"
+        description:
+          type: string
+          example: "社长，拥有最高管理权限"
+        permissions:
+          type: array
+          items:
+            type: string
+          example: ["CLUB_EDIT", "MEMBER_MANAGE", "ACTIVITY_PUBLISH"]
+
+    ClubRoleCreateRequest:
+      type: object
+      required:
+        - name
+        - permissions
+      properties:
+        name:
+          type: string
+          example: "ROLE_ACTIVITY_MANAGER"
+        description:
+          type: string
+          example: "负责活动策划与执行"
+        permissions:
+          type: array
+          items:
+            type: string
+          example: ["ACTIVITY_PUBLISH", "ACTIVITY_MANAGE"]
+
+    ClubRoleUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "ROLE_ACTIVITY_COORDINATOR"
+        description:
+          type: string
+          example: "活动协调员，协助活动经理"
+        permissions:
+          type: array
+          items:
+            type: string
+          example: ["ACTIVITY_PUBLISH"]
+
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 201
+        clubId:
+          type: integer
+          example: 101
+        title:
+          type: string
+          example: "本周社团活动通知"
+        content:
+          type: string
+          example: "本周五晚7点，在教学楼A201举办编程分享会，欢迎大家参加！"
+        publishDate:
+          type: string
+          format: date-time
+          example: "2023-11-01T18:00:00Z"
+        publisherId:
+          type: integer
+          example: 1
+        publisherName:
+          type: string
+          example: "张三 (社长)"
+
+    AnnouncementCreateRequest:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+          example: "新学期招新公告"
+        content:
+          type: string
+          example: "欢迎新同学加入编程爱好者协会！"
+
+    AnnouncementUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "新学期招新公告 (更新)"
+        content:
+          type: string
+          example: "欢迎新同学加入编程爱好者协会！招新截止日期延长至下周。"
+
+    ClubApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 301
+        clubId:
+          type: integer
+          example: 101
+        clubName:
+          type: string
+          example: "编程爱好者协会"
+        applicantId:
+          type: integer
+          example: 5
+        applicantUsername:
+          type: string
+          example: "王五"
+        applicationDate:
+          type: string
+          format: date-time
+          example: "2023-10-25T14:30:00Z"
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+          example: "PENDING"
+        remark:
+          type: string
+          nullable: true
+          example: "申请理由：对编程有浓厚兴趣"
+
+    ActivitySummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 401
+        clubId:
+          type: integer
+          example: 101
+        clubName:
+          type: string
+          example: "编程爱好者协会"
+        title:
+          type: string
+          example: "编程分享会：Vue3实战"
+        startTime:
+          type: string
+          format: date-time
+          example: "2023-11-10T19:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2023-11-10T21:00:00Z"
+        location:
+          type: string
+          example: "教学楼A201"
+        status:
+          type: string
+          enum: [UPCOMING, ONGOING, PAST, CANCELLED]
+          example: "UPCOMING"
+        enrollmentCount:
+          type: integer
+          example: 30
+        maxEnrollment:
+          type: integer
+          example: 50
+        isEnrolled:
+          type: boolean
+          description: 当前用户是否已报名该活动
+          example: false
+
+    ActivityDetail:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ActivitySummary'
+        - type: object
+          properties:
+            description:
+              type: string
+              example: "本次分享会将深入探讨Vue3的Composition API和Vite构建工具的实战应用。"
+            posterUrl:
+              type: string
+              nullable: true
+              example: "http://example.com/activity_poster/401.jpg"
+            contactPerson:
+              type: string
+              example: "李四"
+            contactPhone:
+              type: string
+              example: "13800138000"
+            feedbackEnabled:
+              type: boolean
+              example: true
+            voteEnabled:
+              type: boolean
+              example: false
+            # feedback: # 反馈和投票结果可能通过单独API获取
+            #   type: array
+            #   items:
+            #     $ref: '#/components/schemas/ActivityFeedback'
+            # votes:
+            #   type: array
+            #   items:
+            #     $ref: '#/components/schemas/ActivityVote'
+
+    ActivityCreateRequest:
+      type: object
+      required:
+        - clubId
+        - title
+        - startTime
+        - endTime
+        - location
+      properties:
+        clubId:
+          type: integer
+          example: 101
+        title:
+          type: string
+          example: "编程分享会：Vue3实战"
+        description:
+          type: string
+          example: "本次分享会将深入探讨Vue3的Composition API和Vite构建工具的实战应用。"
+        startTime:
+          type: string
+          format: date-time
+          example: "2023-11-10T19:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2023-11-10T21:00:00Z"
+        location:
+          type: string
+          example: "教学楼A201"
+        maxEnrollment:
+          type: integer
+          nullable: true
+          example: 50
+        posterUrl:
+          type: string
+          nullable: true
+          example: "http://example.com/activity_poster/default.jpg"
+        contactPerson:
+          type: string
+          example: "李四"
+        contactPhone:
+          type: string
+          example: "13800138000"
+        feedbackEnabled:
+          type: boolean
+          example: true
+        voteEnabled:
+          type: boolean
+          example: false
+        voteOptions:
+          type: array
+          items:
+            type: string
+          description: 如果voteEnabled为true，则需要提供投票选项
+          example: ["选项A", "选项B", "选项C"]
+
+    ActivityUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "编程分享会：Vue3实战 (更新)"
+        description:
+          type: string
+          example: "更新后的活动描述。"
+        startTime:
+          type: string
+          format: date-time
+          example: "2023-11-11T19:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2023-11-11T21:00:00Z"
+        location:
+          type: string
+          example: "教学楼A202"
+        maxEnrollment:
+          type: integer
+          nullable: true
+          example: 60
+        posterUrl:
+          type: string
+          nullable: true
+          example: "http://example.com/activity_poster/401_new.jpg"
+        contactPerson:
+          type: string
+          example: "王五"
+        contactPhone:
+          type: string
+          example: "13912345678"
+        feedbackEnabled:
+          type: boolean
+          example: true
+        voteEnabled:
+          type: boolean
+          example: true
+        voteOptions:
+          type: array
+          items:
+            type: string
+          description: 如果voteEnabled为true，则需要提供投票选项
+          example: ["选项A", "选项B", "选项C", "选项D"]
+        status:
+          type: string
+          enum: [UPCOMING, ONGOING, PAST, CANCELLED]
+          example: "CANCELLED"
+
+    ActivityFeedbackRequest:
+      type: object
+      required:
+        - rating
+        - comment
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          nullable: true
+          example: "活动内容非常棒，收获很多！"
+
+    ActivityFeedback:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 501
+        activityId:
+          type: integer
+          example: 401
+        userId:
+          type: integer
+          example: 2
+        username:
+          type: string
+          example: "李四"
+        rating:
+          type: integer
+          example: 5
+        comment:
+          type: string
+          nullable: true
+          example: "活动内容非常棒，收获很多！"
+        feedbackDate:
+          type: string
+          format: date-time
+          example: "2023-11-10T22:00:00Z"
+
+    ActivityVoteRequest:
+      type: object
+      required:
+        - option
+      properties:
+        option:
+          type: string
+          description: 投票选项内容
+          example: "选项A"
 
     MessageSendRequest:
       type: object
@@ -484,16 +2657,122 @@ components:
       properties:
         title:
           type: string
+          example: "社团活动提醒"
         content:
           type: string
+          example: "请注意，本周五的编程分享会即将开始，请准时参加。"
         recipients:
           type: array
           items:
             type: integer
             description: 接收消息的用户ID列表
+          example: [2, 3, 4]
         isSystemNotice:
           type: boolean
-          description: 是否作为系统公告发送
+          description: 是否作为系统公告发送 (需要管理员权限)
+          example: false
+        clubId:
+          type: integer
+          nullable: true
+          description: 如果是社团内部消息，指定社团ID
+          example: 101
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 601
+        senderId:
+          type: integer
+          example: 1
+        senderName:
+          type: string
+          example: "张三"
+        recipientId:
+          type: integer
+          example: 2
+        recipientName:
+          type: string
+          example: "李四"
+        title:
+          type: string
+          example: "社团活动提醒"
+        content:
+          type: string
+          example: "请注意，本周五的编程分享会即将开始，请准时参加。"
+        sendDate:
+          type: string
+          format: date-time
+          example: "2023-11-08T10:00:00Z"
+        readStatus:
+          type: boolean
+          example: false
+        isSystemNotice:
+          type: boolean
+          example: false
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 701
+        userId:
+          type: integer
+          example: 2
+        type:
+          type: string
+          enum: [ACTIVITY_REMINDER, CLUB_APPLICATION_STATUS, SYSTEM_ANNOUNCEMENT, PAYMENT_REMINDER]
+          example: "ACTIVITY_REMINDER"
+        level:
+          type: string
+          enum: [NORMAL, IMPORTANT, URGENT]
+          example: "NORMAL"
+        title:
+          type: string
+          example: "活动即将开始"
+        content:
+          type: string
+          example: "您报名的编程分享会将在1小时后开始。"
+        createDate:
+          type: string
+          format: date-time
+          example: "2023-11-10T18:00:00Z"
+        readStatus:
+          type: boolean
+          example: false
+        relatedUrl:
+          type: string
+          nullable: true
+          format: url
+          example: "/activities/401"
+
+    Email:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 801
+        sender:
+          type: string
+          example: "admin@matchit.com"
+        recipient:
+          type: string
+          example: "user@example.com"
+        subject:
+          type: string
+          example: "重要通知：您的社团申请已通过"
+        body:
+          type: string
+          example: "恭喜您，您申请加入编程爱好者协会的请求已获得批准。"
+        sendDate:
+          type: string
+          format: date-time
+          example: "2023-11-09T09:00:00Z"
+        readStatus:
+          type: boolean
+          example: false
 
     ExpenseRequest:
       type: object
@@ -505,12 +2784,189 @@ components:
         amount:
           type: number
           format: float
+          example: 120.50
         reason:
           type: string
+          example: "购买活动物资"
         clubId:
           type: integer
+          example: 101
         attachments:
           type: array
           items:
             type: string
-            description: 附件URL列表
+            format: url
+            description: 附件URL列表 (如发票图片)
+          example: ["http://example.com/invoice/exp1.jpg"]
+
+    Expense:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 901
+        applicantId:
+          type: integer
+          example: 2
+        applicantName:
+          type: string
+          example: "李四"
+        clubId:
+          type: integer
+          example: 101
+        clubName:
+          type: string
+          example: "编程爱好者协会"
+        amount:
+          type: number
+          format: float
+          example: 120.50
+        reason:
+          type: string
+          example: "购买活动物资"
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+          example: "PENDING"
+        approverId:
+          type: integer
+          nullable: true
+          example: 1
+        approverName:
+          type: string
+          nullable: true
+          example: "张三"
+        remark:
+          type: string
+          nullable: true
+          example: "发票信息不全"
+        attachments:
+          type: array
+          items:
+            type: string
+            format: url
+          example: ["http://example.com/invoice/exp1.jpg"]
+        submissionDate:
+          type: string
+          format: date-time
+          example: "2023-11-05T15:00:00Z"
+        approvalDate:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2023-11-06T10:00:00Z"
+
+    MaterialRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1001
+        materialName:
+          type: string
+          example: "投影仪"
+        borrowerId:
+          type: integer
+          example: 2
+        borrowerName:
+          type: string
+          example: "李四"
+        clubId:
+          type: integer
+          example: 101
+        clubName:
+          type: string
+          example: "编程爱好者协会"
+        borrowDate:
+          type: string
+          format: date-time
+          example: "2023-10-20T09:00:00Z"
+        returnDate:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2023-10-20T17:00:00Z"
+        status:
+          type: string
+          enum: [BORROWED, RETURNED, OVERDUE]
+          example: "BORROWED"
+
+    AttendanceRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1101
+        activityId:
+          type: integer
+          example: 401
+        activityTitle:
+          type: string
+          example: "编程分享会：Vue3实战"
+        userId:
+          type: integer
+          example: 2
+        username:
+          type: string
+          example: "李四"
+        signinTime:
+          type: string
+          format: date-time
+          example: "2023-11-10T19:05:00Z"
+        isSigned:
+          type: boolean
+          example: true
+
+    LlmLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1201
+        userId:
+          type: integer
+          nullable: true
+          example: 2
+        username:
+          type: string
+          nullable: true
+          example: "李四"
+        prompt:
+          type: string
+          example: "如何创建社团？"
+        answer:
+          type: string
+          example: "创建社团需要管理员权限，您可以在社团管理页面提交申请。"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2023-11-07T11:20:00Z"
+
+    SystemLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1301
+        timestamp:
+          type: string
+          format: date-time
+          example: "2023-11-07T11:20:00Z"
+        level:
+          type: string
+          enum: [INFO, WARN, ERROR]
+          example: "INFO"
+        source:
+          type: string
+          example: "UserService"
+        message:
+          type: string
+          example: "User 'testuser' logged in successfully."
+        operatorId:
+          type: integer
+          nullable: true
+          example: 1
+        operatorName:
+          type: string
+          nullable: true
+          example: "admin"
