@@ -1,11 +1,81 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
-
+  <button @click="toggleTheme" class="icon-button theme-switch-button" aria-label="Toggle theme">
+    <transition name="fade" mode="out-in">
+      <!-- Sun icon for light mode -->
+      <svg v-if="currentTheme === 'light'" key="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      <!-- Moon icon for dark mode -->
+      <svg v-else key="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </transition>
+  </button>
 </template>
 
-<style scoped>
+<script lang="ts">
+import { defineComponent, ref } from 'vue';
 
+export default defineComponent({
+  name: 'ThemeSwitch',
+  setup() {
+    // Use a local ref to manage the theme state for now.
+    // This makes the component self-contained.
+    const currentTheme = ref('light'); // 'light' or 'dark'
+
+    const toggleTheme = () => {
+      currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light';
+      // In the future, this is where we will call the Pinia store action.
+      console.log(`Theme changed to: ${currentTheme.value}`);
+    };
+
+    return {
+      currentTheme,
+      toggleTheme,
+    };
+  },
+});
+</script>
+
+<style scoped>
+.theme-switch-button {
+  background: none;
+  border: none;
+  color: white; /* This will be controlled by a CSS variable later */
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-switch-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-switch-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Simple fade transition for the icon switch */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

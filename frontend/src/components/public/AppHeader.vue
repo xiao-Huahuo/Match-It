@@ -17,9 +17,8 @@
         <span class="badge">0</span>
       </button>
 
-      <button class="icon-button theme-switch-button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-      </button>
+      <!-- Replace the old button with our new ThemeSwitch component -->
+      <ThemeSwitch />
 
       <router-link to="/main/profile" class="user-avatar-link">
         <img src="https://placehold.co/40x40/4b7bec/ffffff?text=U" alt="User Avatar" class="user-avatar">
@@ -30,18 +29,20 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import SearchBar from './SearchBar.vue' // <-- 引入 SearchBar
+import SearchBar from './SearchBar.vue'
+import ThemeSwitch from './ThemeSwitch.vue' // <-- Import the new component
 
 export default defineComponent({
   name: 'AppHeader',
   components: {
-    SearchBar
+    SearchBar,
+    ThemeSwitch // <-- Register the new component
   },
   setup() {
-    // 搜索处理逻辑
+    // Search logic
     const handleSearch = (text: string) => {
-      console.log('执行搜索:', text)
-      // TODO: 在这里调用搜索
+      console.log('Executing search:', text)
+      // TODO: Implement search logic here
     }
 
     return {
@@ -53,32 +54,30 @@ export default defineComponent({
 
 <style scoped>
 .app-header {
-  /* 蓝色渐变风格 */
+  /* Gradient blue style */
   background: linear-gradient(90deg, #007bff 0%, #4b7bec 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* padding: top right bottom left */
-  padding: 0 30px 0 30px;
+  padding: 0 30px;
   height: 60px;
 }
 
-/* 左侧 Logo 区域 */
+/* Left Logo Area */
 .header-left {
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-/* 中间搜索栏区域 */
+/* Center Search Bar Area */
 .header-center {
-  flex-grow: 1; /* 占据中心区域所有可用空间 */
+  flex-grow: 1;
   display: flex;
-  justify-content: center; /* 让 SearchBar 保持在 AppHeader 的中心位置 */
+  justify-content: center;
   align-items: center;
   margin: 0 30px;
-  /* min-width: 0; */ /* 可选，但在 flex-grow: 1 的情况下通常不是必需的 */
 }
 
 .logo-link {
@@ -108,7 +107,7 @@ export default defineComponent({
   letter-spacing: 1px;
 }
 
-/* 右侧操作区域 */
+/* Right Action Area */
 .header-right {
   display: flex;
   align-items: center;
@@ -136,13 +135,13 @@ export default defineComponent({
   height: 20px;
 }
 
-/* 徽章/未读数 - Updated styles for perfect circle */
+/* Badge for unread count */
 .badge {
   position: absolute;
   top: 8px;
   right: 8px;
   transform: translate(50%, -50%);
-  background-color: #e74c3c; /* 红色 */
+  background-color: #e74c3c;
   color: white;
   border-radius: 50%;
   font-size: 10px;
@@ -157,7 +156,7 @@ export default defineComponent({
   padding: 0; /* Remove padding to control size with width/height */
 }
 
-/* 用户头像 */
+/* User Avatar */
 .user-avatar {
   width: 40px;
   height: 40px;
@@ -170,13 +169,14 @@ export default defineComponent({
 .user-avatar-link:hover .user-avatar {
   opacity: 0.8;
 }
-/* 媒体查询：确保在屏幕宽度减小时，搜索栏能够收缩 */
+
+/* Media Queries */
 @media (max-width: 1200px) {
   .header-center {
     margin: 0 20px;
   }
 }
-/* 在小屏幕上隐藏搜索栏 */
+
 @media (max-width: 768px) {
   .header-center {
     display: none;
