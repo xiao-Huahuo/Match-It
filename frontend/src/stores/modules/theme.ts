@@ -29,7 +29,7 @@ export const useThemeStore = defineStore('theme', {
     },
 
     /**
-     * Applies the current theme to the document body by adding/removing the '.dark-theme' class
+     * Applies the current theme to the document body by adding/removing the appropriate theme class
      * and saves the choice to localStorage.
      */
     applyTheme() {
@@ -38,11 +38,10 @@ export const useThemeStore = defineStore('theme', {
 
       // Update the class on the body element
       const body = document.body;
-      if (this.theme === 'dark') {
-        body.classList.add('dark-theme');
-      } else {
-        body.classList.remove('dark-theme');
-      }
+      // First, remove any existing theme classes to ensure only one is active
+      body.classList.remove('light-theme', 'dark-theme');
+      // Then, add the current theme class
+      body.classList.add(`${this.theme}-theme`);
     },
   },
 });

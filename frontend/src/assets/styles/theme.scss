@@ -1,0 +1,14 @@
+/* theme.scss */
+
+/* 1. Define light theme variables */
+.light-theme {
+  --header-base-color: #007bff; /* A base color for the header */
+}
+
+/* 2. Define dark theme variables */
+.dark-theme {
+  --header-base-color: #000000; /* Pure black for dark mode */
+}
+
+/* 3. Add a smooth transition for the background-color change */
+// The transition will be applied in AppHeader.vue directly to background-color

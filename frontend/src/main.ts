@@ -1,13 +1,15 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-
+import pinia from './stores' // Import the central Pinia instance
 import App from './App.vue'
-import router from './router' //导入路由
-import fontawesome from './plugins/fontawesome' // 导入 Font Awesome 插件
+import router from './router' // Import router
+import fontawesome from './plugins/fontawesome' // Import Font Awesome plugin
+
+// Import the global stylesheet here, and only here.
+import './assets/styles/theme.scss';
 
 const app = createApp(App)
 
-app.use(createPinia())
-app.use(router) //使用路由
-app.use(fontawesome) // 使用 Font Awesome 插件
+app.use(pinia) // Use the central Pinia instance
+app.use(router) // Use router
+app.use(fontawesome) // Use Font Awesome plugin
 app.mount('#app')

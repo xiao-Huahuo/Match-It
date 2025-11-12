@@ -17,7 +17,6 @@
         <span class="badge">0</span>
       </button>
 
-      <!-- Replace the old button with our new ThemeSwitch component -->
       <ThemeSwitch />
 
       <router-link to="/main/profile" class="user-avatar-link">
@@ -30,16 +29,15 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import SearchBar from './SearchBar.vue'
-import ThemeSwitch from './ThemeSwitch.vue' // <-- Import the new component
+import ThemeSwitch from './ThemeSwitch.vue'
 
 export default defineComponent({
   name: 'AppHeader',
   components: {
     SearchBar,
-    ThemeSwitch // <-- Register the new component
+    ThemeSwitch
   },
   setup() {
-    // Search logic
     const handleSearch = (text: string) => {
       console.log('Executing search:', text)
       // TODO: Implement search logic here
@@ -54,24 +52,23 @@ export default defineComponent({
 
 <style scoped>
 .app-header {
-  /* Gradient blue style */
-  background: linear-gradient(90deg, #007bff 0%, #4b7bec 100%);
-  color: white;
+  /* Use background-color for smooth transition, and background-image for the gradient */
+  background-color: var(--header-base-color);
+  color: white; /* This will be changed to a variable later */
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 30px;
   height: 60px;
+  transition: 0.3s ease;
 }
 
-/* Left Logo Area */
 .header-left {
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-/* Center Search Bar Area */
 .header-center {
   flex-grow: 1;
   display: flex;
@@ -82,7 +79,7 @@ export default defineComponent({
 
 .logo-link {
   text-decoration: none;
-  color: white;
+  color: white; /* This will be changed to a variable later */
   display: flex;
   align-items: center;
   gap: 10px;
@@ -107,7 +104,6 @@ export default defineComponent({
   letter-spacing: 1px;
 }
 
-/* Right Action Area */
 .header-right {
   display: flex;
   align-items: center;
@@ -118,7 +114,7 @@ export default defineComponent({
 .icon-button {
   background: none;
   border: none;
-  color: white;
+  color: white; /* This will be changed to a variable later */
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
@@ -135,7 +131,6 @@ export default defineComponent({
   height: 20px;
 }
 
-/* Badge for unread count */
 .badge {
   position: absolute;
   top: 8px;
@@ -147,16 +142,15 @@ export default defineComponent({
   font-size: 10px;
   line-height: 1;
   text-align: center;
-  /* Ensure it's a circle */
+  border: 1.5px solid white;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 12px;
-  height: 12px;
-  padding: 0; /* Remove padding to control size with width/height */
+  width: 18px;
+  height: 18px;
+  padding: 0;
 }
 
-/* User Avatar */
 .user-avatar {
   width: 40px;
   height: 40px;
@@ -170,7 +164,6 @@ export default defineComponent({
   opacity: 0.8;
 }
 
-/* Media Queries */
 @media (max-width: 1200px) {
   .header-center {
     margin: 0 20px;

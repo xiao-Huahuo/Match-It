@@ -17,18 +17,16 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
-  //代理
+  // Proxy for API requests
   server: {
     proxy: {
-      // 捕获所有以 /api 开头的请求
+      // Capture all requests starting with /api
       '/api': {
-        // 将请求转发到实际的后端地址
+        // Forward the request to the actual backend address
         target: 'http://localhost:8080',
-        // 重写路径：将请求中的 /api 移除
-        // 例如：前端请求 /api/users
-        //       实际发给后端的是 http://localhost:8080/users
+        // Rewrite the path: remove /api from the request
         rewrite: (path) => path.replace(/^\/api/, ''),
-        // 允许跨域
+        // Allow cross-origin requests
         changeOrigin: true,
       }
     }
