@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createAuthGuard } from './guards/auth' // 导入认证守卫
+import { createPermissionGuard } from './guards/permission' // 导入权限守卫 (稍后实现)
 
 // --- 基础页面 (views/ 目录下的所有文件) ---
 import LoginPage from '@/views/LoginPage.vue'
@@ -90,14 +92,14 @@ const routes: RouteRecordRaw[] = [
         path: 'analytics',
         name: 'AnalyticsPage',
         component: AnalyticsPage,
-        meta: { title: '数据分析', requiredRole: 'SUPER_ADMIN' }
+        meta: { title: '数据分析', requiredPermission: 'VIEW_ANALYTICS' } // 修改为 requiredPermission
       },
       // 系统管理页 (需要 SUPER_ADMIN 权限)
       {
         path: 'system',
         name: 'SystemPage',
         component: SystemPage,
-        meta: { title: '系统管理', requiredRole: 'SUPER_ADMIN' }
+        meta: { title: '系统管理', requiredPermission: 'MANAGE_SYSTEM' } // 修改为 requiredPermission
       },
     ],
   },
@@ -107,7 +109,7 @@ const routes: RouteRecordRaw[] = [
   // -------------------------
   {
     path: '/',
-    redirect: '/login', // 现在设置默认路由重定向为登录页面,之后实现用于检查登录状态的路由守卫后再重定向为主页.
+    redirect: '/main/home', // 默认重定向到主页，认证守卫会处理未登录情况
   },
   {
     path: '/:pathMatch(.*)*',
@@ -122,6 +124,9 @@ const router = createRouter({
   routes: routes, // 引入路由
 })
 
-// TODO: 在 src/router/guards/ 中实现路由守卫来处理 meta 中的权限逻辑
+// 应用认证守卫
+createAuthGuard(router)
+// 应用权限守卫 (稍后实现)
+createPermissionGuard(router)
 
 export default router

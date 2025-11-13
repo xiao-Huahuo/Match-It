@@ -25,7 +25,7 @@ export default defineConfig({
         // Forward the request to the actual backend address
         target: 'http://localhost:8080',
         // Rewrite the path: remove /api from the request
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        // rewrite: (path) => path.replace(/^\/api/, ''),
         // Allow cross-origin requests
         changeOrigin: true,
       }

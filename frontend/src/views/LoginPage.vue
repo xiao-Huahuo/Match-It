@@ -2,9 +2,9 @@
   <div class="login-page-container">
     <div class="login-card">
       <ThemeSwitch class="theme-switch-position" />
-      <div class="employee-link">
-        <router-link to="/main/home">员工通道-跳转到主页</router-link>
-      </div>
+<!--      <div class="employee-link">-->
+<!--        <router-link to="/main/home">员工通道-跳转到主页</router-link>-->
+<!--      </div>-->
       <h1>Login</h1>
       <LoginForm v-model:username="username" v-model:password="password" />
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -105,8 +105,8 @@ h1 {
   margin-top: -15px;
   animation: shake 0.5s; /* 错误提示的抖动动画 */
 }
-
-/* 员工通道链接的样式调整 */
+/*
+// 员工通道链接的样式调整
 .employee-link {
   position: absolute;
   top: 15px;
@@ -115,11 +115,11 @@ h1 {
   opacity: 0.5;
   transition: opacity 0.3s;
 }
-
 .employee-link:hover {
   opacity: 1;
 }
 
+*/
 .employee-link a {
   color: var(--sub-font-color);
   transition: var(--transition-duration);

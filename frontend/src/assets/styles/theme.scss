@@ -27,6 +27,12 @@ and you can directly use the variables everywhere in the project without importi
   --main-sidebar-background-color:white;
   //LoginPage
   --login-page-container-background:#4b7bec;
+  //ProfilePage
+  --profile-nav-active-color: var(--primary-color);
+  --profile-nav-active-background: var(--active-background-color);
+  --profile-nav-hover-background: var(--hover-background-color);
+  --profile-nav-text-color: var(--sub-font-color);
+
   //-----------------------COMPONENTS--------------------------
   //LoginButton
   --login-button-background:#4b7bec;
@@ -67,6 +73,49 @@ and you can directly use the variables everywhere in the project without importi
   --sidebar-link-hover_active-icon-placeholder-svg-stroke: #007bff;
   //ThemeSwitch
   --theme-switch-button-color: #ff9f66;
+  //General UI Elements (Commonly used across components)
+  --primary-color: #4b7bec; /* 主要强调色 */
+  --primary-color-dark: #3a66d1; /* 主要强调色深色版 */
+  --border-color: #e0e0e0; /* 边框颜色 */
+  --hover-background-color: #f0f2f5; /* 悬停背景色 */
+  --active-background-color: #e0eaff; /* 激活背景色 */
+  --input-background-color: #ffffff; /* 输入框背景色 */
+  --background-color-light: #f9f9f9; /* 浅背景色 */
+  //Messages / Alerts
+  --error-background-color: #fceae9; /* 错误消息背景色 */
+  --error-text-color: #e74c3c; /* 错误消息文本色 */
+  --error-border-color: #e74c3c; /* 错误消息边框色 */
+  --success-background-color: #e9f5e9; /* 成功消息背景色 */
+  --success-text-color: #27ae60; /* 成功消息文本色 */
+  --success-border-color: #27ae60; /* 成功消息边框色 */
+  //ClubCard
+  --club-card-background-color: #ffffff;
+  --club-card-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  --club-card-hover-transform: translateY(-5px);
+  --club-card-hover-box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  --club-card-logo-border-color: #f0f0f0;
+  --club-card-name-color: #333;
+  --club-card-meta-color: #888;
+  --club-card-description-color: #666;
+  --club-card-tag-background-color: #f4f7fa;
+  --club-card-tag-color: #555;
+  --club-card-joined-status-color: #27ae60;
+  --club-card-join-button-background: #4b7bec;
+  --club-card-join-button-color: white;
+  --club-card-join-button-hover-background: #3a66d1;
+  //TagSelector
+  --tag-selector-tag-background-color: #f4f7fa; /* 标签背景色 */
+  --tag-selector-tag-color: #555; /* 标签文字颜色 */
+  --tag-selector-remove-button-color: white; /* 移除按钮颜色 */
+  //ActivityCard (MyActivities)
+  --activity-item-separator-color: #ccc;
+  --activity-status-upcoming-background: #3498db;
+  --activity-status-ongoing-background: #2ecc71;
+  --activity-status-past-background: #95a5a6;
+  --activity-status-cancelled-background: #e74c3c;
+  --activity-detail-button-background: var(--primary-color);
+  --activity-detail-button-color: white;
+  --activity-detail-button-hover-background: var(--primary-color-dark);
 }
 
 /* 2. Define dark theme variables */
@@ -82,6 +131,11 @@ and you can directly use the variables everywhere in the project without importi
   --main-sidebar-background-color: #535353;
   //LoginPage
   --login-page-container-background: #b54444;
+  //ProfilePage
+  --profile-nav-active-color: var(--primary-color);
+  --profile-nav-active-background: var(--active-background-color);
+  --profile-nav-hover-background: var(--hover-background-color);
+  --profile-nav-text-color: var(--sub-font-color);
 
   //-----------------------COMPONENTS--------------------------
   //LoginButton
@@ -123,6 +177,49 @@ and you can directly use the variables everywhere in the project without importi
   --sidebar-link-hover_active-icon-placeholder-svg-stroke: #f60000;
   //ThemeSwitch
   --theme-switch-button-color: #fbf4b7;
+  //General UI Elements (Commonly used across components)
+  --primary-color: #ff4f4f; /* 主要强调色 (暗色模式) */
+  --primary-color-dark: #cc3333; /* 主要强调色深色版 (暗色模式) */
+  --border-color: #555555; /* 边框颜色 (暗色模式) */
+  --hover-background-color: #505050; /* 悬停背景色 (暗色模式) */
+  --active-background-color: #606060; /* 激活背景色 (暗色模式) */
+  --input-background-color: #333333; /* 输入框背景色 (暗色模式) */
+  --background-color-light: #4a4a4a; /* 浅背景色 (暗色模式) */
+  //Messages / Alerts
+  --error-background-color: #5c2c2c;
+  --error-text-color: #ff7f7f;
+  --error-border-color: #ff7f7f;
+  --success-background-color: #3c5c3c;
+  --success-text-color: #7fff7f;
+  --success-border-color: #7fff7f;
+  //ClubCard
+  --club-card-background-color: #403f3f;
+  --club-card-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --club-card-hover-transform: translateY(-5px);
+  --club-card-hover-box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  --club-card-logo-border-color: #666;
+  --club-card-name-color: #ffffff;
+  --club-card-meta-color: #cccccc;
+  --club-card-description-color: #bbbbbb;
+  --club-card-tag-background-color: #555555;
+  --club-card-tag-color: #eeeeee;
+  --club-card-joined-status-color: #2ecc71;
+  --club-card-join-button-background: #ff4f4f;
+  --club-card-join-button-color: white;
+  --club-card-join-button-hover-background: #cc3333;
+  //TagSelector
+  --tag-selector-tag-background-color: #666666; /* 标签背景色 */
+  --tag-selector-tag-color: #eeeeee; /* 标签文字颜色 */
+  --tag-selector-remove-button-color: white; /* 移除按钮颜色 */
+  //ActivityCard (MyActivities)
+  --activity-item-separator-color: #888;
+  --activity-status-upcoming-background: #3498db;
+  --activity-status-ongoing-background: #2ecc71;
+  --activity-status-past-background: #95a5a6;
+  --activity-status-cancelled-background: #e74c3c;
+  --activity-detail-button-background: var(--primary-color);
+  --activity-detail-button-color: white;
+  --activity-detail-button-hover-background: var(--primary-color-dark);
 }
 /*
 
@@ -131,7 +228,7 @@ transition: var(--transition-duration);
 */
 /* 3.Define global theme and configuration variables */
 .global-configure {
-  --transition-duration: 1s ease;
+  --transition-duration: 0.3s ease; /* 调整为更平滑的过渡时间 */
 }
 
 
