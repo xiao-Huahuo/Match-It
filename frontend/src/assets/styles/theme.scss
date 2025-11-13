@@ -1,14 +1,136 @@
 /* theme.scss */
-
+/* The file has been imported into @/main.ts like below:
+  import './assets/styles/theme.scss';
+and you can directly use the variables everywhere in the project without importing theme.scss.
+ */
+// Any File to import theme.scss can code like below:
+/*
+<style scoped>
+.app-header{
+  background-color: var(--header-base-color); //import variables in theme.scss
+  transition: var(--transition-duration);  //ensure smooth transition and sync time range
+  //... other css styles
+}
+</style>
+ */
 /* 1. Define light theme variables */
 .light-theme {
-  --header-base-color: #007bff; /* A base color for the header */
+
+  //-------------------------GLOBAL-----------------------------
+  --widget-color:white;
+  --sub-widget-color: #353434;
+  --font-color:black;
+  --sub-font-color: #a0aec0;
+  //-------------------------VIEWS-----------------------------
+  //MainLayout
+  --main-layout-container-background-color:#f4f7fa;
+  --main-sidebar-background-color:white;
+  //LoginPage
+  --login-page-container-background:#4b7bec;
+  //-----------------------COMPONENTS--------------------------
+  //LoginButton
+  --login-button-background:#4b7bec;
+  --login-button-color:white;
+  --login-button-box-shadow:0 4px 15px rgba(0, 123, 255, 0.4);
+  --login-button-hover-background:#4c59f4;;
+  --login-button-hover-box-shadow:0 6px 20px rgba(182, 163, 244, 0.6);
+  --login-button-active-box-shadow:0 2px 10px rgba(0, 123, 255, 0.4);
+  //LoginForm
+  --input-border-buttom:2px solid #ccc; /* 下划线 */
+  --input-focus-border-buttom-color:#007bff; /* 蓝色高亮 */
+  //RegisterLink
+  --register-link-color: #007bff;
+  --register-link-a-hover-color: #0056b3;
+  //AppHeader
+  --header-base-color: #007bff;
+  --logo-link-color: white;
+  --logo-icon-color: rgba(255, 255, 255, 0.2);
+  --icon-button-color:white;
+  --icon-button-hover-color:rgba(255, 255, 255, 0.1);
+  --badge-background-color: #e74c3c;
+  --badge-color: white;
+  //AppSidebar
+  --sidebar-nav-background-color:white;
+  --app-sidebar-background-color:white;
+  --section-title-color: #a0aec0; /* 柔和的灰色 */
+  //SearchBar
+  --search-bar-container-background-color:rgba(255, 255, 255, 0.15);
+  --search-input-color:white;
+  //SidebarLink
+  --sidebar-link-text-color:#4a5568;
+  --sidebar-link-before-background-color:#e0eaff;
+  --sidebar-link-hover-text-color: #007bff;
+  --sidebar-link-active-color: #007bff;
+  --sidebar-link-active-before-background-color: #e0eaff;
+  --sidebar-link-hover_active-icon-placeholder-svg-stroke: #007bff;
+  //ThemeSwitch
+  --theme-switch-button-color: #ff9f66;
 }
 
 /* 2. Define dark theme variables */
 .dark-theme {
-  --header-base-color: #000000; /* Pure black for dark mode */
+  //-------------------------GLOBAL-----------------------------
+  --widget-color: #403f3f;
+  --sub-widget-color: #353434;
+  --font-color:white;
+  --sub-font-color: #a0aec0;
+  //-------------------------VIEWS-----------------------------
+  //MainLayout
+  --main-layout-container-background-color: #676565;
+  --main-sidebar-background-color: #535353;
+  //LoginPage
+  --login-page-container-background: #b54444;
+
+  //-----------------------COMPONENTS--------------------------
+  //LoginButton
+  --login-button-background: #bc0000;
+  --login-button-color: #fffdfd;
+  --login-button-box-shadow:0 4px 15px rgba(250, 59, 0, 0.4);
+  --login-button-hover-background: #ff0000;;
+  --login-button-hover-box-shadow:0 6px 20px rgba(236, 83, 0, 0.6);
+  --login-button-active-box-shadow:0 2px 10px rgba(255, 98, 0, 0.4);
+  //LoginForm
+  --input-border-buttom:2px solid #f8f7f7; /* 下划线 */
+  --input-focus-border-buttom-color: #f8bdbd;
+  //RegisterLink & LoginLink
+  --register-link-color: #faf6f6;
+  --register-link-a-hover-color: #ff0000;
+  //AppHeader
+  --header-base-color: #000000;
+  --logo-link-color: #ffffff;
+  --logo-icon-color: red;
+  --icon-button-color:white;
+  --icon-button-hover-color:rgba(255, 255, 255, 0.1);
+  --badge-background-color: #1a5bfa;
+  --badge-color: white;
+  //AppSidebar
+  --sidebar-nav-background-color: #474545;
+  --app-sidebar-background-color:black;
+  --section-title-color: #a0aec0;
+  //SearchBar
+  --search-bar-container-background-color: #151515;
+  --search-input-color: #ffffff;
+  //SidebarLink
+  --sidebar-link-text-color: #fdfdfd;
+  --sidebar-link-before-background-color: #514f4f;
+  --sidebar-link-hover-text-color: #ff4f4f;
+  --sidebar-link-active-color: #ff4f4f;
+  --sidebar-link-active-before-background-color: #704f4f;
+  --sidebar-link-hover_active-icon-placeholder-svg-stroke: #f60000;
+  //ThemeSwitch
+  --theme-switch-button-color: #fbf4b7;
+}
+/*
+
+transition: var(--transition-duration);
+
+*/
+/* 3.Define global theme and configuration variables */
+.global-configure {
+  --transition-duration: 1s ease;
 }
 
-/* 3. Add a smooth transition for the background-color change */
-// The transition will be applied in AppHeader.vue directly to background-color
+
+/*
+background: linear-gradient(135deg, #4b7bec 0%, #0099ff 100%); //蓝色渐变背景
+ */

@@ -45,14 +45,16 @@ export default defineComponent({
 
 <style scoped>
 .app-sidebar {
-  background-color: white;
+  background-color: var(--app-sidebar-background-color);
+  transition: var(--transition-duration);
   padding: 20px 0;
-  border-right: 1px solid #eee;
-  /* 确保侧边栏在 MainLayout 中设置的宽度生效 */
 }
 
 .sidebar-nav {
   display: flex;
+  background-color: var(--sidebar-nav-background-color);
+  transition: var(--transition-duration);
+  border-radius: 15px;
   flex-direction: column;
   gap: 20px;
 }
@@ -63,7 +65,7 @@ export default defineComponent({
 
 .section-title {
   font-size: 12px;
-  color: #a0aec0; /* 柔和的灰色 */
+  color: var(--section-title-color);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;

@@ -17,7 +17,7 @@
       </li>
     </ul>
     <div v-else class="empty-state">
-      <p>暂无特别推荐，先逛逛社团广场吧！</p>
+      <p id="empty-state-text">暂无特别推荐，先逛逛社团广场吧！</p>
     </div>
   </div>
 </template>
@@ -63,7 +63,8 @@ onMounted(() => {
 
 <style scoped>
 .recommend-section-container {
-  background-color: #ffffff;
+  background-color: var(--widget-color);
+  transition: var(--transition-duration);
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -72,12 +73,16 @@ onMounted(() => {
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color:var(--font-color);
+  transition: var(--transition-duration);
   margin: 0 0 15px 0;
   display: flex;
   align-items: center;
 }
-
+#empty-state-text {
+  color:var(--sub-font-color);
+  transition: var(--transition-duration);
+}
 .title-icon {
   margin-right: 8px;
   color: #f39c12;

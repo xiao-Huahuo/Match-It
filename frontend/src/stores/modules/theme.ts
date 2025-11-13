@@ -10,6 +10,7 @@ export const useThemeStore = defineStore('theme', {
      * @type {'light' | 'dark'}
      */
     theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
+    global: localStorage.getItem('global')
   }),
 
   actions: {
@@ -23,9 +24,14 @@ export const useThemeStore = defineStore('theme', {
 
     /**
      * Initializes the theme on application startup.
+     * This method should also ensure global configurations are applied.
      */
     initializeTheme() {
       this.applyTheme();
+      // Ensure the global-configure class is always present on the body
+      if (!document.body.classList.contains('global-configure')) {
+        document.body.classList.add('global-configure');
+      }
     },
 
     /**
@@ -35,7 +41,6 @@ export const useThemeStore = defineStore('theme', {
     applyTheme() {
       // Save the current theme to localStorage
       localStorage.setItem('theme', this.theme);
-
       // Update the class on the body element
       const body = document.body;
       // First, remove any existing theme classes to ensure only one is active

@@ -61,13 +61,15 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   /* 蓝色渐变背景 */
-  background: linear-gradient(135deg, #4b7bec 0%, #0099ff 100%);
+  background: var(--login-page-container-background);
+  transition: var(--transition-duration);
 }
 
 /* 登录卡片样式 */
 .login-card {
   position: relative;
-  background-color: white;
+  background-color: var(--widget-color);
+  transition: var(--transition-duration);
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -81,7 +83,8 @@ export default defineComponent({
 
 h1 {
   font-size: 32px;
-  color: #333;
+  color: var(--font-color);
+  transition: var(--transition-duration);
   margin-bottom: 5px;
   text-align: center;
   font-weight: 300;
@@ -110,7 +113,8 @@ h1 {
 }
 
 .employee-link a {
-  color: #333;
+  color: var(--sub-font-color);
+  transition: var(--transition-duration);
   text-decoration: none;
 }
 

@@ -48,11 +48,11 @@ export default defineComponent({
 .theme-switch-button {
   background: none;
   border: none;
-  color: white; /* This will be controlled by a CSS variable later */
+  color:var(--theme-switch-button-color);
+  transition: var(--transition-duration);
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
-  transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,7 +70,7 @@ export default defineComponent({
 /* Simple fade transition for the icon switch */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.5s ease;
 }
 
 .fade-enter-from,

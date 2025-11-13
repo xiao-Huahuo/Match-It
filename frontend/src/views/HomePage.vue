@@ -59,7 +59,8 @@ const username = computed(() => (userStore.userInfo?.username || '同学')+'~')
 /* 问候语样式 */
 .greeting-header {
   padding: 10px 20px;
-  background-color: #ffffff;
+  background-color: var(--widget-color);
+  transition: var(--transition-duration);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -68,13 +69,15 @@ const username = computed(() => (userStore.userInfo?.username || '同学')+'~')
   font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
   font-weight: bold;
   font-size: 26px;
-  color: #333;
+  color: var(--font-color);
+  transition: var(--transition-duration);
   margin: 0 0 5px 0;
 }
 
 .greeting-header p {
   font-size: 15px;
-  color: #888;
+  color: var(--font-color);
+  transition: var(--transition-duration);
   margin: 0;
 }
 

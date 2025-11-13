@@ -48,11 +48,11 @@ export default defineComponent({
   padding: 10px;
   border-radius: 8px;
   text-decoration: none;
-  color: #4a5568; /* 默认深色文本 */
+  color: var(--sidebar-link-text-color);
   position: relative;
   overflow: hidden; /* 关键：隐藏伪元素在默认状态下的溢出 */
   z-index: 1; /* 确保内容在伪元素之上 */
-  transition: color 0.3s ease;
+  transition: var(--transition-duration);
 }
 
 /* 悬停动画实现 */
@@ -63,7 +63,7 @@ export default defineComponent({
   left: 0;
   height: 100%;
   width: 100%;
-  background-color: #e0eaff; /* 浅蓝色背景 */
+  background-color: var(--sidebar-link-before-background-color);
   z-index: -1;
   /* 初始状态：宽度为0，或从左侧移出 */
   transform: translateX(-100%);
@@ -76,19 +76,21 @@ export default defineComponent({
 }
 
 .sidebar-link:hover {
-  color: #007bff; /* 悬停时文本变蓝 */
+  color: var(--sidebar-link-hover-text-color);
 }
 
 /* 激活状态 (被 router-link 的 active-class="active" 选中) */
 .sidebar-link.active {
-  color: #007bff; /* 激活时深蓝色文本 */
+  color: var(--sidebar-link-active-color);
+  transition: var(--transition-duration);
   font-weight: 600;
 }
 
 .sidebar-link.active::before {
   /* 激活状态下的伪元素样式 */
   transform: translateX(0);
-  background-color: #e0eaff; /* 保持浅蓝色背景 */
+  background-color: var(--sidebar-link-active-before-background-color);
+  transition: var(--transition-duration);
 }
 
 /* 图标样式 */
@@ -105,7 +107,8 @@ export default defineComponent({
 /* 激活和悬停时的图标颜色 */
 .sidebar-link:hover .icon-placeholder svg,
 .sidebar-link.active .icon-placeholder svg {
-  stroke: #007bff;
+  stroke: var(--sidebar-link-hover_active-icon-placeholder-svg-stroke);
+  transition: var(--transition-duration);
 }
 
 .label {

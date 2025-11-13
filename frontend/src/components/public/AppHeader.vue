@@ -54,13 +54,12 @@ export default defineComponent({
 .app-header {
   /* Use background-color for smooth transition, and background-image for the gradient */
   background-color: var(--header-base-color);
-  color: white; /* This will be changed to a variable later */
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 30px;
   height: 60px;
-  transition: 0.3s ease;
+  transition: var(--transition-duration);
 }
 
 .header-left {
@@ -79,7 +78,8 @@ export default defineComponent({
 
 .logo-link {
   text-decoration: none;
-  color: white; /* This will be changed to a variable later */
+  color: var(--logo-link-color);
+  transition: var(--transition-duration);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -91,7 +91,8 @@ export default defineComponent({
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--logo-icon-color);
+  transition: var(--transition-duration);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,7 +115,7 @@ export default defineComponent({
 .icon-button {
   background: none;
   border: none;
-  color: white; /* This will be changed to a variable later */
+  color: var(--icon-button-color);
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
@@ -123,7 +124,7 @@ export default defineComponent({
 }
 
 .icon-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--icon-button-hover-color);
 }
 
 .icon-button svg {
@@ -136,19 +137,19 @@ export default defineComponent({
   top: 8px;
   right: 8px;
   transform: translate(50%, -50%);
-  background-color: #e74c3c;
-  color: white;
+  background-color: var(--badge-background-color);
+  color: var(--badge-color);
   border-radius: 50%;
   font-size: 10px;
   line-height: 1;
   text-align: center;
-  border: 1.5px solid white;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 18px;
-  height: 18px;
+  width: 12px;
+  height: 12px;
   padding: 0;
+  transition: var(--transition-duration);
 }
 
 .user-avatar {

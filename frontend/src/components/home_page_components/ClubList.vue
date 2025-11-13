@@ -17,7 +17,7 @@
       </div>
     </div>
     <div v-else class="empty-state">
-      <p>暂无社团信息</p>
+      <p id="empty-state-text">暂无社团信息</p>
     </div>
   </div>
 </template>
@@ -63,7 +63,8 @@ onMounted(() => {
 <style scoped>
 .club-list-container {
   padding: 20px;
-  background-color: #ffffff;
+  background-color: var(--widget-color);
+  transition: var(--transition-duration);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   height: 100%; /* 填满父容器 */
@@ -74,9 +75,15 @@ onMounted(() => {
 .list-title {
   font-size: 24px;
   font-weight: 600;
-  color: #333;
+  color: var(--font-color);
+  transition: var(--transition-duration);
   margin-bottom: 20px;
   flex-shrink: 0; /* 防止标题被压缩 */
+}
+#empty-state-text
+{
+  color:var(--sub-font-color);
+  transition: var(--transition-duration);
 }
 
 .club-grid-wrapper {

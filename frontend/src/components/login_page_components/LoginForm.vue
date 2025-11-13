@@ -1,7 +1,7 @@
 <template>
   <div class="login-form">
-    <input v-model="username" type="text" placeholder="Username" />
-    <input v-model="password" type="password" placeholder="Password" />
+    <input class='usr-input' v-model="username" type="text" placeholder="Username" />
+    <input class='usr-input' v-model="password" type="password" placeholder="Password" />
   </div>
 </template>
 
@@ -29,13 +29,18 @@ input {
   padding: 10px 0;
   font-size: 16px;
   border: none;
-  border-bottom: 2px solid #ccc; /* 默认下划线 */
+  border-bottom: var(--input-border-buttom);
   outline: none;
-  transition: border-bottom-color 0.3s ease; /* 动态效果 */
+  transition: tranform var(--transition-duration),border-bottom-color 0.3s ease; /* 动态效果 */
   color: #333;
 }
-/* 焦点时的蓝色高亮效果 */
+.usr-input{
+  background-color: var(--widget-color);
+  transition: var(--transition-duration);
+}
+/* 焦点时的高亮效果 */
 input:focus {
-  border-bottom-color: #007bff; /* 蓝色高亮 */
+  border-bottom-color:var(--input-focus-border-buttom-color);
+  transition: 0.3s ease;
 }
 </style>

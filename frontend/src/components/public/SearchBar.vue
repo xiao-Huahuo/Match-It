@@ -33,10 +33,10 @@ export default defineComponent({
   /* 关键修改：移除固定的 width: 400px; */
   width: 100%; /* 占据父容器的全部宽度 */
   max-width: 600px; /* 限制最大宽度，防止在大屏幕上过宽 */
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: var(--search-bar-container-background-color);
+  transition: var(--transition-duration);
   border-radius: 20px;
   overflow: hidden;
-  transition: all 0.3s ease; /* 增加过渡效果，让线性变化更平滑 */
 }
 
 .search-bar-container:focus-within {
@@ -49,7 +49,7 @@ export default defineComponent({
   padding: 8px 15px;
   border: none;
   background: transparent;
-  color: white;
+  color: var(--search-input-color);
   font-size: 14px;
   outline: none;
 }

@@ -22,13 +22,14 @@ export default defineComponent({
 }
 
 .register-link a {
-  color: #007bff; /* 蓝色链接 */
+  color: var(--register-link-color);
   text-decoration: none;
-  transition: color 0.3s ease, text-decoration 0.3s ease;
+  transition: transform var(--transition-duration),color 0.3s ease, text-decoration 0.3s ease;
 }
 
 .register-link a:hover {
-  color: #0056b3;
+  color: var(--register-link-a-hover-color);
+  transition: var(--transition-duration);
   text-decoration: underline; /* 悬停时出现下划线 */
 }
 </style>

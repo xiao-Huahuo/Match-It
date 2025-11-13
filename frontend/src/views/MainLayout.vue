@@ -40,7 +40,8 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f4f7fa; /* 浅灰色背景，提升内容区域对比度 */
+  background-color: var(--main-layout-container-background-color);
+  transition: var(--transition-duration);
 }
 
 .main-header {
@@ -61,10 +62,10 @@ export default defineComponent({
   width: 250px; /* 固定侧边栏宽度 */
   min-height: calc(100vh - 60px); /* 占据屏幕剩余高度 */
   /* 侧边栏样式 */
-  background-color: #ffffff;
+  background-color: var(--main-sidebar-background-color);
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03);
   padding: 20px 0;
-  transition: width 0.3s ease; /* 方便以后实现侧边栏收缩 */
+  transition: var(--transition-duration);
 }
 
 .main-view {
