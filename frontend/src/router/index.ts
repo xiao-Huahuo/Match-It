@@ -107,7 +107,7 @@ const routes: RouteRecordRaw[] = [
   // -------------------------
   {
     path: '/',
-    redirect: '/main/home', // 默认根路径跳转到主页
+    redirect: '/login', // 现在设置默认路由重定向为登录页面,之后实现用于检查登录状态的路由守卫后再重定向为主页.
   },
   {
     path: '/:pathMatch(.*)*',

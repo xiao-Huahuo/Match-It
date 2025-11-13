@@ -2,7 +2,7 @@
   <div class="login-page-container">
     <div class="login-card">
       <div class="employee-link">
-        <router-link to="/main">详情</router-link>
+        <router-link to="/main/home">员工通道-跳转到主页</router-link>
       </div>
       <h1>Login</h1>
       <LoginForm v-model:username="username" v-model:password="password" />
