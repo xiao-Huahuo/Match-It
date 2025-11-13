@@ -1,6 +1,7 @@
 <template>
   <div class="register-page-container">
     <div class="register-card">
+      <ThemeSwitch class="theme-switch-position" />
       <h1>Register</h1>
       <RegisterForm
         v-model:username="username"
@@ -27,10 +28,11 @@ import { register } from '@/api/modules/user'
 import RegisterForm from '@/components/register_page_components/RegisterForm.vue'
 import RegisterButton from '@/components/register_page_components/RegisterButton.vue'
 import LoginLink from '@/components/register_page_components/LoginLink.vue'
+import ThemeSwitch from '@/components/public/ThemeSwitch.vue'
 
 export default defineComponent({
   name: 'RegisterPage',
-  components: { RegisterForm, RegisterButton, LoginLink },
+  components: { RegisterForm, RegisterButton, LoginLink, ThemeSwitch },
   setup() {
     const username = ref('')
     const email = ref('')
@@ -82,12 +84,14 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   /* 蓝色渐变背景 */
-  background: linear-gradient(135deg, #4b7bec 0%, #0099ff 100%);
+  background: var(--login-page-container-background);
+  transition: var(--transition-duration);
 }
 
 .register-card {
   position: relative;
-  background-color: white;
+  background-color: var(--widget-color);
+  transition: var(--transition-duration);
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -99,9 +103,16 @@ export default defineComponent({
   animation: fadeIn 0.8s ease-out;
 }
 
+.theme-switch-position {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
 h1 {
   font-size: 32px;
-  color: #333;
+  color: var(--font-color);
+  transition: var(--transition-duration);
   margin-bottom: 5px;
   text-align: center;
   font-weight: 300;

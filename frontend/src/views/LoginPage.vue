@@ -1,6 +1,7 @@
 <template>
   <div class="login-page-container">
     <div class="login-card">
+      <ThemeSwitch class="theme-switch-position" />
       <div class="employee-link">
         <router-link to="/main/home">员工通道-跳转到主页</router-link>
       </div>
@@ -20,10 +21,11 @@ import LoginForm from '@/components/login_page_components/LoginForm.vue'
 import LoginButton from '@/components/login_page_components/LoginButton.vue'
 import RegisterLink from '@/components/login_page_components/RegisterLink.vue'
 import { useUserStore } from '@/stores/modules/user'
+import ThemeSwitch from '@/components/public/ThemeSwitch.vue'
 
 export default defineComponent({
   name: 'LoginPage',
-  components: { LoginForm, LoginButton, RegisterLink },
+  components: { LoginForm, LoginButton, RegisterLink, ThemeSwitch },
   setup() {
     const username = ref('')
     const password = ref('')
@@ -79,6 +81,12 @@ export default defineComponent({
   width: 100%;
   max-width: 380px;
   animation: fadeIn 0.8s ease-out; /* 简单进入动画 */
+}
+
+.theme-switch-position {
+  position: absolute;
+  top: 15px;
+  right: 15px;
 }
 
 h1 {
