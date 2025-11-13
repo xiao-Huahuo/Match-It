@@ -1,20 +1,42 @@
 <template>
   <div class="login-form">
-    <input class='usr-input' v-model="username" type="text" placeholder="Username" />
-    <input class='usr-input' v-model="password" type="password" placeholder="Password" />
+    <input
+      class='usr-input'
+      :value="username"
+      @input="$emit('update:username', ($event.target as HTMLInputElement).value)"
+      type="text"
+      placeholder="Username"
+    />
+    <input
+      class='usr-input'
+      :value="password"
+      @input="$emit('update:password', ($event.target as HTMLInputElement).value)"
+      type="password"
+      placeholder="Password"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'LoginForm',
-  props: {},
+  props: {
+    username: {
+      type: String,
+      default: ''
+    },
+    password: {
+      type: String,
+      default: ''
+    }
+  },
+  emits: ['update:username', 'update:password'],
   setup() {
-    const username = ref('')
-    const password = ref('')
-    return { username, password }
+    // Props are directly used in the template with :value and @input
+    // No need for local refs here as v-model in parent handles it.
+    return {}
   },
 })
 </script>
