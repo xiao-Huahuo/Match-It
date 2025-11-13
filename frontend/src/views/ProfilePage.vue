@@ -71,7 +71,10 @@ const currentTabComponent = computed(() => {
   padding: 20px;
   background-color: var(--main-layout-container-background-color);
   transition: var(--transition-duration);
+  /* 确保容器占据所有可用高度，并允许其内容滚动 */
   min-height: calc(100vh - 60px); /* 减去header高度 */
+  display: flex;
+  flex-direction: column;
 }
 
 .page-title {
@@ -80,23 +83,28 @@ const currentTabComponent = computed(() => {
   color: var(--font-color);
   margin-bottom: 25px;
   text-align: center;
+  flex-shrink: 0; /* 防止标题被压缩 */
 }
 
 .profile-content-wrapper {
   display: flex;
   gap: 25px;
-  max-width: 1200px;
-  margin: 0 auto;
+  /* 移除 max-width 和 margin: 0 auto; 让其自然延展 */
+  flex-grow: 1; /* 占据所有剩余垂直空间 */
+  min-height: 0; /* 允许内容收缩 */
+  width: 100%; /* 占据父容器所有宽度 */
 }
 
 .profile-sidebar {
   flex-shrink: 0;
-  width: 200px;
+  width: 200px; /* 固定宽度 */
   background-color: var(--widget-color);
   transition: var(--transition-duration);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 15px 0;
+  height: 100%; /* 占据父容器所有高度 */
+  overflow-y: auto; /* 如果导航项过多，允许滚动 */
 }
 
 .profile-nav {
@@ -134,13 +142,16 @@ const currentTabComponent = computed(() => {
 }
 
 .profile-main-content {
-  flex-grow: 1;
+  flex-grow: 1; /* 占据所有剩余水平空间 */
   background-color: var(--widget-color);
   transition: var(--transition-duration);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 25px;
-  min-height: 500px; /* 保证内容区域有最小高度 */
+  min-height: 0; /* 允许内容收缩 */
+  display: flex; /* 使内部组件能够弹性填充 */
+  flex-direction: column; /* 内部组件垂直排列 */
+  overflow-y: auto; /* 允许内容滚动 */
 }
 
 /* 路由切换动画 */
@@ -157,12 +168,16 @@ const currentTabComponent = computed(() => {
 @media (max-width: 768px) {
   .profile-content-wrapper {
     flex-direction: column;
+    width: 100%; /* 移动端占据所有宽度 */
+    max-width: none; /* 移除最大宽度限制 */
   }
 
   .profile-sidebar {
     width: 100%;
     padding: 0;
     border-radius: 12px;
+    height: auto; /* 移动端高度自适应 */
+    overflow-y: visible; /* 移动端不强制滚动 */
   }
 
   .profile-nav {

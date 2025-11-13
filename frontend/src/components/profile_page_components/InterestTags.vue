@@ -86,6 +86,10 @@ const cancelEditTags = () => {
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-grow: 1; /* 确保卡片能够弹性填充父容器 */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* 允许内容收缩 */
 }
 
 .card-title {
@@ -95,16 +99,21 @@ const cancelEditTags = () => {
   margin-bottom: 25px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
+  flex-shrink: 0; /* 防止标题被压缩 */
 }
 
 .tags-section {
   margin-bottom: 30px;
+  flex-grow: 1; /* 允许标签选择器区域弹性填充 */
+  min-height: 0; /* 允许内容收缩 */
+  overflow-y: auto; /* 允许内容滚动 */
 }
 
 h3 {
   font-size: 18px;
   color: var(--font-color);
   margin-bottom: 15px;
+  flex-shrink: 0; /* 防止标题被压缩 */
 }
 
 .actions {
@@ -112,6 +121,7 @@ h3 {
   gap: 15px;
   justify-content: flex-end;
   margin-top: 20px;
+  flex-shrink: 0; /* 防止按钮被压缩 */
 }
 
 .save-button, .cancel-button {
@@ -124,12 +134,12 @@ h3 {
 }
 
 .save-button {
-  background-color: #28a745;
+  background-color: var(--primary-color);
   color: white;
 }
 
 .save-button:hover:not(:disabled) {
-  background-color: #218838;
+  background-color: var(--primary-color-dark);
 }
 
 .save-button:disabled {
@@ -152,17 +162,18 @@ h3 {
   border-radius: 8px;
   font-size: 14px;
   text-align: center;
+  flex-shrink: 0; /* 防止消息被压缩 */
 }
 
 .error-message {
-  background-color: #fceae9;
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
+  background-color: var(--error-background-color);
+  color: var(--error-text-color);
+  border: 1px solid var(--error-border-color);
 }
 
 .success-message {
-  background-color: #e9f5e9;
-  color: #27ae60;
-  border: 1px solid #27ae60;
+  background-color: var(--success-background-color);
+  color: var(--success-text-color);
+  border: 1px solid var(--success-border-color);
 }
 </style>

@@ -2,11 +2,15 @@
   <div class="my-clubs-card">
     <h2 class="card-title">我的社团</h2>
 
-    <div v-if="loading" class="loading-grid">
-      <div v-for="n in 3" :key="n" class="skeleton-card"></div>
+    <div v-if="loading" class="loading-grid-wrapper">
+      <div class="loading-grid">
+        <div v-for="n in 3" :key="n" class="skeleton-card"></div>
+      </div>
     </div>
-    <div v-else-if="clubs.length > 0" class="club-grid">
-      <ClubCard v-for="club in clubs" :key="club.id" :club="club" />
+    <div v-else-if="clubs.length > 0" class="club-grid-wrapper">
+      <div class="club-grid">
+        <ClubCard v-for="club in clubs" :key="club.id" :club="club" />
+      </div>
     </div>
     <div v-else class="empty-state">
       <p>您还没有加入任何社团。</p>
@@ -56,6 +60,10 @@ onMounted(() => {
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-grow: 1; /* 确保卡片能够弹性填充父容器 */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* 允许内容收缩 */
 }
 
 .card-title {
@@ -65,15 +73,17 @@ onMounted(() => {
   margin-bottom: 25px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
+  flex-shrink: 0; /* 防止标题被压缩 */
 }
 
-.club-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+.club-grid-wrapper, .loading-grid-wrapper {
+  flex-grow: 1; /* 占据所有剩余空间 */
+  overflow-y: auto; /* 允许内容滚动 */
+  padding-right: 10px; /* 为滚动条留出空间 */
+  margin-right: -10px; /* 隐藏滚动条 */
 }
 
-.loading-grid {
+.club-grid, .loading-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
@@ -96,6 +106,11 @@ onMounted(() => {
   text-align: center;
   padding: 50px 0;
   color: var(--sub-font-color);
+  flex-grow: 1; /* 占据所有剩余空间 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直居中 */
+  align-items: center; /* 水平居中 */
 }
 
 .empty-state p {
@@ -123,8 +138,9 @@ onMounted(() => {
   border-radius: 8px;
   font-size: 14px;
   text-align: center;
-  background-color: #fceae9;
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
+  background-color: var(--error-background-color);
+  color: var(--error-text-color);
+  border: 1px solid var(--error-border-color);
+  flex-shrink: 0; /* 防止消息被压缩 */
 }
 </style>

@@ -2,24 +2,28 @@
   <div class="my-activities-card">
     <h2 class="card-title">我的活动</h2>
 
-    <div v-if="loading" class="loading-list">
-      <div v-for="n in 4" :key="n" class="skeleton-item"></div>
+    <div v-if="loading" class="loading-list-wrapper">
+      <div class="loading-list">
+        <div v-for="n in 4" :key="n" class="skeleton-item"></div>
+      </div>
     </div>
-    <div v-else-if="activities.length > 0" class="activity-list">
-      <div v-for="activity in activities" :key="activity.id" class="activity-item">
-        <div class="activity-info">
-          <h3 class="activity-title">{{ activity.title }}</h3>
-          <p class="activity-meta">
-            <span class="club-name">{{ activity.clubName }}</span>
-            <span class="separator">|</span>
-            <span class="time">{{ formatDateTime(activity.startTime) }}</span>
-            <span class="separator">|</span>
-            <span class="location">{{ activity.location }}</span>
-          </p>
-        </div>
-        <div class="activity-actions">
-          <span :class="['activity-status', `status-${activity.status.toLowerCase()}`]">{{ getActivityStatusText(activity.status) }}</span>
-          <button class="detail-button" @click="goToActivityDetail(activity.id)">查看详情</button>
+    <div v-else-if="activities.length > 0" class="activity-list-wrapper">
+      <div class="activity-list">
+        <div v-for="activity in activities" :key="activity.id" class="activity-item">
+          <div class="activity-info">
+            <h3 class="activity-title">{{ activity.title }}</h3>
+            <p class="activity-meta">
+              <span class="club-name">{{ activity.clubName }}</span>
+              <span class="separator">|</span>
+              <span class="time">{{ formatDateTime(activity.startTime) }}</span>
+              <span class="separator">|</span>
+              <span class="location">{{ activity.location }}</span>
+            </p>
+          </div>
+          <div class="activity-actions">
+            <span :class="['activity-status', `status-${activity.status.toLowerCase()}`]">{{ getActivityStatusText(activity.status) }}</span>
+            <button class="detail-button" @click="goToActivityDetail(activity.id)">查看详情</button>
+          </div>
         </div>
       </div>
     </div>
@@ -97,6 +101,10 @@ onMounted(() => {
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-grow: 1; /* 确保卡片能够弹性填充父容器 */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* 允许内容收缩 */
 }
 
 .card-title {
@@ -106,6 +114,14 @@ onMounted(() => {
   margin-bottom: 25px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
+  flex-shrink: 0; /* 防止标题被压缩 */
+}
+
+.loading-list-wrapper, .activity-list-wrapper {
+  flex-grow: 1; /* 占据所有剩余空间 */
+  overflow-y: auto; /* 允许内容滚动 */
+  padding-right: 10px; /* 为滚动条留出空间 */
+  margin-right: -10px; /* 隐藏滚动条 */
 }
 
 .activity-list {
@@ -152,7 +168,7 @@ onMounted(() => {
 }
 
 .activity-meta .separator {
-  color: #ccc;
+  color: var(--activity-item-separator-color);
   margin: 0 5px;
 }
 
@@ -171,14 +187,14 @@ onMounted(() => {
   color: white;
 }
 
-.status-upcoming { background-color: #3498db; } /* 蓝色 */
-.status-ongoing { background-color: #2ecc71; }   /* 绿色 */
-.status-past { background-color: #95a5a6; }      /* 灰色 */
-.status-cancelled { background-color: #e74c3c; } /* 红色 */
+.status-upcoming { background-color: var(--activity-status-upcoming-background); }
+.status-ongoing { background-color: var(--activity-status-ongoing-background); }
+.status-past { background-color: var(--activity-status-past-background); }
+.status-cancelled { background-color: var(--activity-status-cancelled-background); }
 
 .detail-button {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--activity-detail-button-background);
+  color: var(--activity-detail-button-color);
   border: none;
   padding: 8px 15px;
   border-radius: 8px;
@@ -188,7 +204,7 @@ onMounted(() => {
 }
 
 .detail-button:hover {
-  background-color: var(--primary-color-dark);
+  background-color: var(--activity-detail-button-hover-background);
 }
 
 .loading-list {
@@ -214,6 +230,11 @@ onMounted(() => {
   text-align: center;
   padding: 50px 0;
   color: var(--sub-font-color);
+  flex-grow: 1; /* 占据所有剩余空间 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直居中 */
+  align-items: center; /* 水平居中 */
 }
 
 .empty-state p {
@@ -241,8 +262,9 @@ onMounted(() => {
   border-radius: 8px;
   font-size: 14px;
   text-align: center;
-  background-color: #fceae9;
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
+  background-color: var(--error-background-color);
+  color: var(--error-text-color);
+  border: 1px solid var(--error-border-color);
+  flex-shrink: 0; /* 防止消息被压缩 */
 }
 </style>

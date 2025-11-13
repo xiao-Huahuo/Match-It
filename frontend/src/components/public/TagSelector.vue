@@ -136,8 +136,8 @@ watch(() => props.selectedTags, () => {
 }
 
 .tag-item.available {
-  background-color: var(--tag-background-color);
-  color: var(--tag-color);
+  background-color: var(--tag-item-background-color);
+  color: var(--font-color);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }

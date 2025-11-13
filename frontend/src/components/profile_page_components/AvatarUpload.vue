@@ -96,6 +96,10 @@ const uploadAvatar = async () => {
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-grow: 1; /* 确保卡片能够弹性填充父容器 */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* 允许内容收缩 */
 }
 
 .card-title {
@@ -105,10 +109,12 @@ const uploadAvatar = async () => {
   margin-bottom: 25px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
+  flex-shrink: 0; /* 防止标题被压缩 */
 }
 
 .current-avatar-section, .upload-section {
   margin-bottom: 30px;
+  flex-shrink: 0; /* 防止内容被压缩 */
 }
 
 h3 {
@@ -175,17 +181,18 @@ h3 {
   border-radius: 8px;
   font-size: 14px;
   text-align: center;
+  flex-shrink: 0; /* 防止消息被压缩 */
 }
 
 .error-message {
-  background-color: #fceae9;
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
+  background-color: var(--error-background-color);
+  color: var(--error-text-color);
+  border: 1px solid var(--error-border-color);
 }
 
 .success-message {
-  background-color: #e9f5e9;
-  color: #27ae60;
-  border: 1px solid #27ae60;
+  background-color: var(--success-background-color);
+  color: var(--success-text-color);
+  border: 1px solid var(--success-border-color);
 }
 </style>
