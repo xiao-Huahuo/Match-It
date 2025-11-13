@@ -32,7 +32,13 @@ input {
   border-bottom: var(--input-border-buttom);
   outline: none;
   transition: tranform var(--transition-duration),border-bottom-color 0.3s ease; /* 动态效果 */
-  color: #333;
+  color: var(--input-color); /* 设置输入文字颜色 */
+  caret-color: var(--input-caret-color); /* 设置光标颜色 */
+}
+/* 修改 placeholder 样式 */
+input::placeholder {
+  color: var(--sub-font-color);
+  font-style: italic;
 }
 .usr-input{
   background-color: var(--widget-color);

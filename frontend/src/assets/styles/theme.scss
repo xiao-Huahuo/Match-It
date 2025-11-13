@@ -38,6 +38,8 @@ and you can directly use the variables everywhere in the project without importi
   //LoginForm
   --input-border-buttom:2px solid #ccc; /* 下划线 */
   --input-focus-border-buttom-color:#007bff; /* 蓝色高亮 */
+  --input-color: black;
+  --input-caret-color:#007bff;
   //RegisterLink
   --register-link-color: #007bff;
   --register-link-a-hover-color: #0056b3;
@@ -91,7 +93,9 @@ and you can directly use the variables everywhere in the project without importi
   --login-button-active-box-shadow:0 2px 10px rgba(255, 98, 0, 0.4);
   //LoginForm
   --input-border-buttom:2px solid #f8f7f7; /* 下划线 */
-  --input-focus-border-buttom-color: #f8bdbd;
+  --input-focus-border-buttom-color: #f45d3c;
+  --input-color:white;
+  --input-caret-color: #ff1a1a;
   //RegisterLink & LoginLink
   --register-link-color: #faf6f6;
   --register-link-a-hover-color: #ff0000;
@@ -101,7 +105,7 @@ and you can directly use the variables everywhere in the project without importi
   --logo-icon-color: red;
   --icon-button-color:white;
   --icon-button-hover-color:rgba(255, 255, 255, 0.1);
-  --badge-background-color: #1a5bfa;
+  --badge-background-color: #ff0000;
   --badge-color: white;
   //AppSidebar
   --sidebar-nav-background-color: #474545;
